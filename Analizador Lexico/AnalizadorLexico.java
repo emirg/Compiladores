@@ -23,17 +23,21 @@ public class AnalizadorLexico {
 
     private static HashMap<String, String> palabrasReservadas;
     private static BufferedReader reader;
+    private static FileWriter fileWriter;
+    private static int caracterActual;
 
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Cantidad de argumentos incorrecta");
         } else {
             try {
-                reader = new BufferedReader(new FileReader(args[0]));
-                FileWriter fileWriter = new FileWriter("archivoTokens.txt"); // Abre el archivo
+                cargarPalabrasReservadas(); // Inicializa la estructura que contiene las palabras reservadas junto a sus
+                                            // tokens
+                reader = new BufferedReader(new FileReader(args[0])); // Abre el archivo de lectura
+                fileWriter = new FileWriter("archivoTokens.txt"); // Abre el archivo de escritura
                 // fileWriter.write(fileContent);
-                int caracterActual = -2;
-                String aux = "";
+                caracterActual = -2;
+                String cadenaAux = "";
                 while (caracterActual != -1) {
                     if (caracterActual == -2) {
                         caracterActual = reader.read();
@@ -41,60 +45,60 @@ public class AnalizadorLexico {
                         case '<':
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
-                                aux = "<tk_op_relacional , op_menor_igual> \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else if (caracterActual == '>') {
-                                aux = "<tk_op_relacional , op_distinto> \n"; // Modificar en el informe
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_op_relacional , op_distinto> \n"; // Modificar en el informe
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else {
-                                aux = "<tk_op_relacional , op_menor> \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_op_relacional , op_menor> \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             }
                             break;
 
                         case '=':
-                            aux = "<tk_op_relacional , op_igual> \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_op_relacional , op_igual> \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '>':
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
-                                aux = "<tk_op_relacional , op_mayor_igual> \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_op_relacional , op_mayor_igual> \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else {
-                                aux = "<tk_op_relacional , op_mayor> \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_op_relacional , op_mayor> \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             }
                             break;
 
                         case ',':
-                            aux = "<tk_coma , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_coma , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case ';':
-                            aux = "<tk_puntocoma , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_puntocoma , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case ':':
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
-                                aux = "<tk_asignacion , > \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_asignacion , > \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else {
-                                aux = "<tk_dospuntos , > \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_dospuntos , > \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             }
                             break;
@@ -102,105 +106,121 @@ public class AnalizadorLexico {
                         case '.':
                             caracterActual = reader.read();
                             if (caracterActual == '.') {
-                                aux = "<tk_doblepunto , > \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_doblepunto , > \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else {
-                                aux = "<tk_punto , > \n";
-                                fileWriter.write(aux);
+                                cadenaAux = "<tk_punto , > \n";
+                                fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             }
                             break;
 
                         case '(':
-                            aux = "<tk_parentesis_izq , > \n"; // Modificar en el informe
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_parentesis_izq , > \n"; // Modificar en el informe
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case ')':
-                            aux = "<tk_parentesis_der , > \n"; // Modificar en el informe
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_parentesis_der , > \n"; // Modificar en el informe
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '-':
-                            aux = "<tk_op_resta , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_op_resta , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '+':
-                            aux = "<tk_op_suma , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_op_suma , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '/':
-                            aux = "<tk_op_div , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_op_div , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '*':
-                            aux = "<tk_op_mult , > \n";
-                            fileWriter.write(aux);
+                            cadenaAux = "<tk_op_mult , > \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
-                        case ' ':
-                            aux = "<blank> \n";
-                            fileWriter.write(aux);
+                        case ' ': // Probablemente haya que ignorar, no devolver un <blank>, pero por ahora lo
+                                  // dejamos
+                            cadenaAux = "<blank> \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
-                        case '\n':
-                            aux = "<newline> \n";
-                            fileWriter.write(aux);
+                        case '\n': // Probablemente haya que ignorar, no devolver un <newline>, pero por ahora lo
+                                   // dejamos
+                            cadenaAux = "<newline> \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
-                        case '\t':
-                            aux = "<tab> \n";
-                            fileWriter.write(aux);
+                        case '\t': // Probablemente haya que ignorar, no devolver un <tab>, pero por ahora lo
+                                   // dejamos
+                            cadenaAux = "<tab> \n";
+                            fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
-                        case -1:
-                            aux = "<fin_archivo>";
-                            fileWriter.write(aux);
+                        case -1: // Probablemente haya que ignorar, no devolver un <fin_archivo>, pero por ahora
+                                 // lo dejamos
+                            cadenaAux = "<fin_archivo>";
+                            fileWriter.write(cadenaAux);
                             break;
 
                         default: // Falta leer los comentarios
-                            if ((caracterActual >= 'A' && caracterActual <= 'Z')
-                                    || (caracterActual >= 'a' && caracterActual <= 'z')) {
-                                String identificador = leerID();
-                                if (palabrasReservadas.containsKey(identificador.toLowerCase())) {
-                                    aux = palabrasReservadas.get(identificador.toLowerCase());
-                                    fileWriter.write(aux);
+                            if (caracterActual == '{') {
+                                try {
+                                    leerComentario();
                                     caracterActual = -2;
-                                } else {
-                                    aux = "<tk_id," + identificador + ">";
-                                    fileWriter.write(aux);
-                                    caracterActual = -2;
+                                } catch (Exception e) {
+                                    e.getMessage();
+                                    fileWriter.close();
+                                    reader.close();
                                 }
-                            } else {
-                                String numero = leerNum();
-                                if (caracterActual >= '0' && caracterActual <= '9') {
-                                    aux = "<tk_numero," + numero + ">";
-                                    fileWriter.write(aux);
-                                    caracterActual = -2;
-                                } else {
-                                    aux = "<error: caracter no valido>";// Despues mostrar caracter error
-                                    fileWriter.write(aux);
-                                    caracterActual = -1;
+                            } else { // ID y Numero
+                                if ((caracterActual >= 'A' && caracterActual <= 'Z')
+                                        || (caracterActual >= 'a' && caracterActual <= 'z')) { // Si es una letra
+                                                                                               // (ID/Palabra Reservada)
+                                    String identificador = leerID();
+                                    if (palabrasReservadas.containsKey(identificador.toLowerCase())) {
+                                        cadenaAux = palabrasReservadas.get(identificador.toLowerCase()) + "\n";
+                                        fileWriter.write(cadenaAux);
+                                        caracterActual = -2;
+                                        reader.reset();
+                                    } else {
+                                        cadenaAux = "<tk_id , " + identificador + "> \n";
+                                        fileWriter.write(cadenaAux);
+                                        caracterActual = -2;
+                                        reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
+                                    }
+                                } else { // No empieza con letra
+                                    if (caracterActual >= '0' && caracterActual <= '9') {
+                                        String numero = leerNum();
+                                        cadenaAux = "<tk_numero , " + numero + "> \n";
+                                        fileWriter.write(cadenaAux);
+                                        caracterActual = -2;
+                                        reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
+                                    } else { // Probablemente un caracter invalido
+                                        cadenaAux = "<error: caracter no valido> \n"; // Despues mostrar caracter error
+                                        fileWriter.write(cadenaAux);
+                                        caracterActual = -1;
+                                    }
                                 }
                             }
-
                         }
-
                     }
-
                 }
-
                 fileWriter.close();
+                reader.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -209,19 +229,85 @@ public class AnalizadorLexico {
     }
 
     public static void cargarPalabrasReservadas() {
-
+        palabrasReservadas = new HashMap<String, String>();
+        palabrasReservadas.put("and", "<tk_op_and , >");
+        palabrasReservadas.put("or", "<tk_op_or , >");
+        palabrasReservadas.put("not", "<tk_op_not , >");
+        palabrasReservadas.put("program", "<tk_program , >");
+        palabrasReservadas.put("begin", "<tk_begin , >");
+        palabrasReservadas.put("end", "<tk_end , >");
+        palabrasReservadas.put("function", "<tk_function , >");
+        palabrasReservadas.put("procedure", "<tk_procedure , >");
+        palabrasReservadas.put("var", "<tk_var , >");
+        palabrasReservadas.put("if", "<tk_if , >");
+        palabrasReservadas.put("then", "<tk_then , >");
+        palabrasReservadas.put("else", "<tk_else , >");
+        palabrasReservadas.put("while", "<tk_while , >");
+        palabrasReservadas.put("do", "<tk_do , >");
+        palabrasReservadas.put("read", "<tk_read , >");
+        palabrasReservadas.put("write", "<tk_write , >");
+        palabrasReservadas.put("boolean", "<tk_tipo , tipo_boolean>");
+        palabrasReservadas.put("integer", "<tk_tipo , tipo_integer>");
+        palabrasReservadas.put("true", "<tk_boolean , valor_true>");
+        palabrasReservadas.put("false", "<tk_boolean , valor_false>");
     }
 
     public static String leerNum() {
-        return "";
+        // String numero = "";
+        StringBuilder constructorNumero = new StringBuilder();
+        try {
+            while (caracterActual >= '0' && caracterActual <= '9') {
+                constructorNumero.append((char) caracterActual);
+                reader.mark(1); // Solucion temporal: sin esto, perdemos el caracter siguiente al ID/Numero. Se
+                                // marca y despues se resetea la cabeza del reader para seguir en el siguiente
+                                // caracter directo al ID/Numero
+                caracterActual = reader.read();
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return constructorNumero.toString();
     }
 
     public static String leerID() {
-        return "";
+        // String identificador = "";
+        StringBuilder constructorID = new StringBuilder();
+        try {
+            while ((caracterActual >= 'A' && caracterActual <= 'Z') || (caracterActual >= 'a' && caracterActual <= 'z')
+                    || (caracterActual >= '0' && caracterActual <= '9')) {
+                constructorID.append((char) caracterActual);
+                reader.mark(1); // Solucion temporal: sin esto, perdemos el caracter siguiente al ID/Numero. Se
+                                // marca y despues se resetea la cabeza del reader para seguir en el siguiente
+                                // caracter directo al ID/Numero
+                caracterActual = reader.read();
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return constructorID.toString();
     }
 
-    public static String leerComentario() {
-        return "";
+    public static void leerComentario() throws Exception {
+        try {
+            caracterActual = reader.read();
+            while (caracterActual != '}' && caracterActual != -1) {
+                caracterActual = reader.read();
+            }
+
+            if (caracterActual == -1) {
+                // Error: No se cerro el comentario
+                throw new Exception("Comentario no fue cerrado");
+
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
