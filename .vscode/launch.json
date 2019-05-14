@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - AnalizadorLexico",
+            "request": "launch",
+            "mainClass": "AnalizadorLexico",
+            "projectName": "Compiladores_c03208a9"
+        }
+    ]
+}

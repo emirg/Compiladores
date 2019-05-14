@@ -30,7 +30,7 @@ public class AnalizadorLexico {
         } else {
             try {
                 reader = new BufferedReader(new FileReader(args[0]));
-                FileWriter fileWriter = new FileWriter("c:/temp/samplefile2.txt"); // Abre el archivo
+                FileWriter fileWriter = new FileWriter("archivoTokens.txt"); // Abre el archivo
                 // fileWriter.write(fileContent);
                 int caracterActual = -2;
                 String aux = "";
@@ -168,31 +168,32 @@ public class AnalizadorLexico {
                             fileWriter.write(aux);
                             break;
 
-                        default:
-                            if((caracterActual >= 'A' && caracterActual<='Z')|| (caracterActual >= 'a' && caracterActual<='z' ){
-                                String identificador=leerID();
-                                if(palabrasReservadas.containsKey(identificador.toLowerCase())){
-                                    aux= palabrasReservadas.get(identificador.toLowerCase());
+                        default: // Falta leer los comentarios
+                            if ((caracterActual >= 'A' && caracterActual <= 'Z')
+                                    || (caracterActual >= 'a' && caracterActual <= 'z')) {
+                                String identificador = leerID();
+                                if (palabrasReservadas.containsKey(identificador.toLowerCase())) {
+                                    aux = palabrasReservadas.get(identificador.toLowerCase());
                                     fileWriter.write(aux);
-                                    caracterActual=-2;
-                                }else{
-                                    aux="<tk_id,"+identificador+">";
+                                    caracterActual = -2;
+                                } else {
+                                    aux = "<tk_id," + identificador + ">";
                                     fileWriter.write(aux);
-                                    caracterActual=-2;
+                                    caracterActual = -2;
                                 }
-                            }else{
-                                String numero= leerNum();
-                                if(caracterActual >= '0' && caracterActual<='9'){
-                                    aux="<tk_numero,"+numero+">";
+                            } else {
+                                String numero = leerNum();
+                                if (caracterActual >= '0' && caracterActual <= '9') {
+                                    aux = "<tk_numero," + numero + ">";
                                     fileWriter.write(aux);
-                                    caracterActual=-2;
-                                }else{
-                                    aux="<error caracter no valido>";//despues mostrar caracter error
+                                    caracterActual = -2;
+                                } else {
+                                    aux = "<error: caracter no valido>";// Despues mostrar caracter error
                                     fileWriter.write(aux);
-                                    caracterActual=-1;
+                                    caracterActual = -1;
                                 }
                             }
-                            
+
                         }
 
                     }
@@ -212,15 +213,15 @@ public class AnalizadorLexico {
     }
 
     public static String leerNum() {
-
+        return "";
     }
 
     public static String leerID() {
-
+        return "";
     }
 
     public static String leerComentario() {
-
+        return "";
     }
 
     /**
