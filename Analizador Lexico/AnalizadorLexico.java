@@ -3,7 +3,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 
 /**
@@ -13,13 +12,13 @@ import java.util.HashMap;
 
 public class AnalizadorLexico {
 
-    /*
-     * Posibles errores: 1) Caracteres no esten en el alfabeto 2) No cierra los
-     * comentarios
-     * 
-     * Tener en cuenta: 1) Las palabras reservadas pueden estar en mayusculas,
-     * minisculas o intercalado
-     */
+    // Posibles errores:
+    // 1) Caracteres no esten en el alfabeto (invalidos)
+    // 2) No cierra los comentarios - ✓
+
+    // Tener en cuenta:
+    // 1) Las palabras reservadas pueden estar en mayusculas, minisculas o
+    // intercalado - ✓
 
     private static HashMap<String, String> palabrasReservadas;
     private static BufferedReader reader;
@@ -265,7 +264,6 @@ public class AnalizadorLexico {
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return constructorNumero.toString();
@@ -285,7 +283,6 @@ public class AnalizadorLexico {
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return constructorID.toString();
@@ -300,12 +297,12 @@ public class AnalizadorLexico {
 
             if (caracterActual == -1) {
                 // Error: No se cerro el comentario
-                throw new Exception("Comentario no fue cerrado");
+                fileWriter.write("<Error: Comentario no fue cerrado>");
+                throw new Exception("<Error: Comentario no fue cerrado>");
 
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -317,6 +314,7 @@ public class AnalizadorLexico {
      * @param filename text file
      * @return list of strings where strings are each line in the file
      */
+    @Deprecated
     public static ArrayList<String> readFile(String filename) {
         ArrayList<String> records = new ArrayList<String>();
         try {
