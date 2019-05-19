@@ -1,0 +1,2 @@
+idUno := 5+5; {Esto es un comentario}
+idDos := 2 * 3 / 5; {Esto es otro comentario}

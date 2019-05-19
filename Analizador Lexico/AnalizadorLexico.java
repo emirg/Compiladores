@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -14,11 +13,11 @@ public class AnalizadorLexico {
 
     // Posibles errores:
     // 1) Caracteres no esten en el alfabeto (invalidos)
-    // 2) No cierra los comentarios - ✓
+    // 2) No cierra los comentarios
 
     // Tener en cuenta:
     // 1) Las palabras reservadas pueden estar en mayusculas, minisculas o
-    // intercalado - ✓
+    // intercalado
 
     private static HashMap<String, String> palabrasReservadas;
     private static BufferedReader reader;
@@ -37,8 +36,8 @@ public class AnalizadorLexico {
                 // fileWriter.write(fileContent);
                 caracterActual = -2;
                 String cadenaAux = "";
-                while (caracterActual != -1) {
-                    if (caracterActual == -2) {
+                while (caracterActual != -1) { // Carater '-1' es el fin del archivo
+                    if (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
                         caracterActual = reader.read();
                         switch (caracterActual) {
                         case '<':
@@ -180,8 +179,9 @@ public class AnalizadorLexico {
                                 try {
                                     leerComentario();
                                     caracterActual = -2;
-                                } catch (Exception e) {
-                                    e.getMessage();
+                                } catch (Exception e) { // Si hubo una excepcion leyendo el comentario (eof o un '@')
+                                    System.out.println(e.getMessage());
+                                    caracterActual = -1;
                                     fileWriter.close();
                                     reader.close();
                                 }
@@ -209,7 +209,7 @@ public class AnalizadorLexico {
                                         caracterActual = -2;
                                         reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
                                     } else { // Probablemente un caracter invalido
-                                        cadenaAux = "<error: caracter no valido> \n"; // Despues mostrar caracter error
+                                        cadenaAux = "<Error: caracter \"" + (char) caracterActual + "\" no valido> \n";
                                         fileWriter.write(cadenaAux);
                                         caracterActual = -1;
                                     }
@@ -289,46 +289,20 @@ public class AnalizadorLexico {
     }
 
     public static void leerComentario() throws Exception {
-        try {
+
+        caracterActual = reader.read();
+        while (caracterActual != '}' && caracterActual != -1 && caracterActual != '@') {
             caracterActual = reader.read();
-            while (caracterActual != '}' && caracterActual != -1) {
-                caracterActual = reader.read();
-            }
-
-            if (caracterActual == -1) {
-                // Error: No se cerro el comentario
-                fileWriter.write("<Error: Comentario no fue cerrado>");
-                throw new Exception("<Error: Comentario no fue cerrado>");
-
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 
-    /**
-     * Open and read a file, and return the lines in the file as a list of Strings.
-     * (Demonstrates Java FileReader, BufferedReader, and Java5.)
-     * 
-     * @param filename text file
-     * @return list of strings where strings are each line in the file
-     */
-    @Deprecated
-    public static ArrayList<String> readFile(String filename) {
-        ArrayList<String> records = new ArrayList<String>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                records.add(line);
-            }
-            reader.close();
-            return records;
-        } catch (Exception e) {
-            System.err.format("Exception occurred trying to read '%s'.", filename);
-            e.printStackTrace();
-            return null;
+        if (caracterActual == -1) {
+            // Error: No se cerro el comentario
+            fileWriter.write("<Error: Comentario no fue cerrado> \n");
+            throw new Exception("<Error: Comentario no fue cerrado>");
+        } else if (caracterActual == '@') {
+            // Error: Caracter no valido en los comentarios
+            fileWriter.write("<Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios> \n");
+            throw new Exception("<Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios> \n");
         }
     }
 }
