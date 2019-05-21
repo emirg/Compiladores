@@ -1,0 +1,15 @@
+<tk_id , a> 
+<tk_op_suma , > 
+<tk_id , b> 
+<tk_op_relacional , op_mayor> 
+<tk_numero , 6> 
+<tk_op_or , >
+<tk_parentesis_izq , > 
+<tk_numero , 2> 
+<tk_op_relacional , op_distinto> 
+<tk_numero , 2> 
+<tk_parentesis_der , > 
+<tk_op_and , >
+<tk_id , c> 
+<tk_op_relacional , op_menor> 
+<tk_numero , 4> 

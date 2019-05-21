@@ -41,19 +41,21 @@ public class AnalizadorLexico {
                         caracterActual = reader.read();
                         switch (caracterActual) {
                         case '<':
+                            reader.mark(1);
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else if (caracterActual == '>') {
-                                cadenaAux = "<tk_op_relacional , op_distinto> \n"; // Modificar en el informe
+                                cadenaAux = "<tk_op_relacional , op_distinto> \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
                             } else {
                                 cadenaAux = "<tk_op_relacional , op_menor> \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
+                                reader.reset();
                             }
                             break;
 
@@ -64,6 +66,7 @@ public class AnalizadorLexico {
                             break;
 
                         case '>':
+                            reader.mark(1);
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_op_relacional , op_mayor_igual> \n";
@@ -73,6 +76,7 @@ public class AnalizadorLexico {
                                 cadenaAux = "<tk_op_relacional , op_mayor> \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
+                                reader.reset();
                             }
                             break;
 
@@ -89,6 +93,7 @@ public class AnalizadorLexico {
                             break;
 
                         case ':':
+                            reader.mark(1);
                             caracterActual = reader.read();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_asignacion , > \n";
@@ -98,10 +103,12 @@ public class AnalizadorLexico {
                                 cadenaAux = "<tk_dospuntos , > \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
+                                reader.reset();
                             }
                             break;
 
                         case '.':
+                            reader.mark(1);
                             caracterActual = reader.read();
                             if (caracterActual == '.') {
                                 cadenaAux = "<tk_doblepunto , > \n";
@@ -111,17 +118,18 @@ public class AnalizadorLexico {
                                 cadenaAux = "<tk_punto , > \n";
                                 fileWriter.write(cadenaAux);
                                 caracterActual = -2;
+                                reader.mark(1);
                             }
                             break;
 
                         case '(':
-                            cadenaAux = "<tk_parentesis_izq , > \n"; // Modificar en el informe
+                            cadenaAux = "<tk_parentesis_izq , > \n";
                             fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case ')':
-                            cadenaAux = "<tk_parentesis_der , > \n"; // Modificar en el informe
+                            cadenaAux = "<tk_parentesis_der , > \n";
                             fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
@@ -152,29 +160,29 @@ public class AnalizadorLexico {
                         case ' ': // Probablemente haya que ignorar, no devolver un <blank>, pero por ahora lo
                                   // dejamos
                             cadenaAux = "<blank> \n";
-                            fileWriter.write(cadenaAux);
+                            // fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
 
                         case '\n': // Probablemente haya que ignorar, no devolver un <newline>, pero por ahora lo
                                    // dejamos
                             cadenaAux = "<newline> \n";
-                            fileWriter.write(cadenaAux);
+                            // fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
                         case '\t': // Probablemente haya que ignorar, no devolver un <tab>, pero por ahora lo
                                    // dejamos
                             cadenaAux = "<tab> \n";
-                            fileWriter.write(cadenaAux);
+                            // fileWriter.write(cadenaAux);
                             caracterActual = -2;
                             break;
                         case -1: // Probablemente haya que ignorar, no devolver un <fin_archivo>, pero por ahora
                                  // lo dejamos
                             cadenaAux = "<fin_archivo>";
-                            fileWriter.write(cadenaAux);
+                            // fileWriter.write(cadenaAux);
                             break;
 
-                        default: // Falta leer los comentarios
+                        default:
                             if (caracterActual == '{') {
                                 try {
                                     leerComentario();
