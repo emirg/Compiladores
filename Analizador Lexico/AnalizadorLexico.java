@@ -23,6 +23,7 @@ public class AnalizadorLexico {
     private static BufferedReader reader;
     private static FileWriter fileWriter;
     private static int caracterActual;
+    private static int numLinea = 1;
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -38,11 +39,11 @@ public class AnalizadorLexico {
                 String cadenaAux = "";
                 while (caracterActual != -1) { // Carater '-1' es el fin del archivo
                     if (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
-                        caracterActual = reader.read();
+                        caracterActual = leerCaracter();
                         switch (caracterActual) {
                         case '<':
                             reader.mark(1);
-                            caracterActual = reader.read();
+                            caracterActual = leerCaracter();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
                                 fileWriter.write(cadenaAux);
@@ -67,7 +68,7 @@ public class AnalizadorLexico {
 
                         case '>':
                             reader.mark(1);
-                            caracterActual = reader.read();
+                            caracterActual = leerCaracter();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_op_relacional , op_mayor_igual> \n";
                                 fileWriter.write(cadenaAux);
@@ -94,7 +95,7 @@ public class AnalizadorLexico {
 
                         case ':':
                             reader.mark(1);
-                            caracterActual = reader.read();
+                            caracterActual = leerCaracter();
                             if (caracterActual == '=') {
                                 cadenaAux = "<tk_asignacion , > \n";
                                 fileWriter.write(cadenaAux);
@@ -109,7 +110,7 @@ public class AnalizadorLexico {
 
                         case '.':
                             reader.mark(1);
-                            caracterActual = reader.read();
+                            caracterActual = leerCaracter();
                             if (caracterActual == '.') {
                                 cadenaAux = "<tk_doblepunto , > \n";
                                 fileWriter.write(cadenaAux);
@@ -217,8 +218,14 @@ public class AnalizadorLexico {
                                         caracterActual = -2;
                                         reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
                                     } else { // Probablemente un caracter invalido
-                                        cadenaAux = "<Error: caracter \"" + (char) caracterActual + "\" no valido> \n";
+                                        cadenaAux = "Linea " + numLinea + ": <Error: caracter \""
+                                                + (char) caracterActual + "\" no valido> \n";
                                         fileWriter.write(cadenaAux);
+                                        try {
+                                            throw new Exception(cadenaAux);
+                                        } catch (Exception e) {
+                                            System.out.print(e.getMessage());
+                                        }
                                         caracterActual = -1;
                                     }
                                 }
@@ -268,7 +275,7 @@ public class AnalizadorLexico {
                 reader.mark(1); // Solucion temporal: sin esto, perdemos el caracter siguiente al ID/Numero. Se
                                 // marca y despues se resetea la cabeza del reader para seguir en el siguiente
                                 // caracter directo al ID/Numero
-                caracterActual = reader.read();
+                caracterActual = leerCaracter();
             }
 
         } catch (IOException e) {
@@ -287,7 +294,7 @@ public class AnalizadorLexico {
                 reader.mark(1); // Solucion temporal: sin esto, perdemos el caracter siguiente al ID/Numero. Se
                                 // marca y despues se resetea la cabeza del reader para seguir en el siguiente
                                 // caracter directo al ID/Numero
-                caracterActual = reader.read();
+                caracterActual = leerCaracter();
             }
 
         } catch (IOException e) {
@@ -298,19 +305,37 @@ public class AnalizadorLexico {
 
     public static void leerComentario() throws Exception {
 
-        caracterActual = reader.read();
+        caracterActual = leerCaracter();
+        int lineaComienzoComentario = numLinea;
         while (caracterActual != '}' && caracterActual != -1 && caracterActual != '@') {
-            caracterActual = reader.read();
+            caracterActual = leerCaracter();
         }
 
         if (caracterActual == -1) {
             // Error: No se cerro el comentario
-            fileWriter.write("<Error: Comentario no fue cerrado> \n");
-            throw new Exception("<Error: Comentario no fue cerrado>");
+
+            fileWriter.write("Linea " + lineaComienzoComentario + ": <Error: Comentario no fue cerrado> \n");
+            throw new Exception("Linea " + lineaComienzoComentario + ": <Error: Comentario no fue cerrado>");
         } else if (caracterActual == '@') {
             // Error: Caracter no valido en los comentarios
-            fileWriter.write("<Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios> \n");
-            throw new Exception("<Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios> \n");
+            fileWriter.write("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual
+                    + "\" no valido en los comentarios> \n");
+            throw new Exception("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual
+                    + "\" no valido en los comentarios>");
         }
+    }
+
+    public static int leerCaracter() {
+        int caracter = -1;
+        try {
+            caracter = reader.read();
+            if (caracter == '\n') {
+                numLinea++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return caracter;
     }
 }
