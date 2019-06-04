@@ -40,6 +40,7 @@ public class AnalizadorLexico {
                 while (caracterActual != -1) { // Carater '-1' es el fin del archivo
                     if (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
                         caracterActual = leerCaracter();
+                        // System.out.println((char) caracterActual);
                         switch (caracterActual) {
                         case '<':
                             reader.mark(1);
