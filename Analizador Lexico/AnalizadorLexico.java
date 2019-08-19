@@ -4,11 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-/**
- *
- * @author emiliano
- */
-
 public class AnalizadorLexico {
 
     // Posibles errores:
@@ -24,6 +19,12 @@ public class AnalizadorLexico {
     private static FileWriter fileWriter;
     private static int caracterActual;
     private static int numLinea = 1;
+    // TODO: Agregar los tokens a una lista para pasarlos al Analizador Sintactico
+    // private static ArrayList<Token> tokens;
+
+    /*public AnalizadorLexico(){
+
+    }*/
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -168,6 +169,11 @@ public class AnalizadorLexico {
 
                         case '\n': // Probablemente haya que ignorar, no devolver un <newline>, pero por ahora lo
                                    // dejamos
+                            cadenaAux = "<newline> \n";
+                            // fileWriter.write(cadenaAux);
+                            caracterActual = -2;
+                            break;
+                        case '\r': // Idem \n pero para CRLF
                             cadenaAux = "<newline> \n";
                             // fileWriter.write(cadenaAux);
                             caracterActual = -2;
