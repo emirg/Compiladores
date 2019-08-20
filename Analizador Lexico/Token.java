@@ -3,6 +3,11 @@ public class Token{
     private String nombreToken;
     private String atributoToken;
 
+    public Token(){
+        this.nombreToken = "";
+        this.atributoToken = "";
+    }
+
     public Token(String nombreToken, String atributoToken){
         this.nombreToken = nombreToken;
         this.atributoToken = atributoToken;

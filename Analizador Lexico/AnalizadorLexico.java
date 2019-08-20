@@ -14,19 +14,21 @@ public class AnalizadorLexico {
     // 1) Las palabras reservadas pueden estar en mayusculas, minisculas o
     // intercalado
 
-    private static HashMap<String, String> palabrasReservadas;
-    private static BufferedReader reader;
+    private static HashMap<String, Token> palabrasReservadas;
+    private BufferedReader reader;
     private static FileWriter fileWriter;
-    private static int caracterActual;
+    private int caracterActual;
+    private Token ultimoTokenGenerado;
     private static int numLinea = 1;
-    // TODO: Agregar los tokens a una lista para pasarlos al Analizador Sintactico
-    // private static ArrayList<Token> tokens;
 
-    /*public AnalizadorLexico(){
+    public AnalizadorLexico(String nombreArchivo){
+        cargarPalabrasReservadas();
+        this.reader = new BufferedReader(new FileReader(nombreArchivo)); // Abre el archivo de lectura
+        this.caracterActual = -2;
+        this.ultimoTokenGenerado = new Token();
+    }
 
-    }*/
-
-    public static void main(String[] args) {
+/*     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Cantidad de argumentos incorrecta");
         } else {
@@ -247,10 +249,235 @@ public class AnalizadorLexico {
             }
         }
 
+    } */
+
+    public Token obtenerToken(){
+        if (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
+            caracterActual = leerCaracter();
+            // System.out.println((char) caracterActual);
+            switch (caracterActual) {
+            case '<':
+                reader.mark(1);
+                caracterActual = leerCaracter();
+                if (caracterActual == '=') {
+                    // cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_op_relacional", "op_menor_igual");
+                    caracterActual = -2;
+                } else if (caracterActual == '>') {
+                    // cadenaAux = "<tk_op_relacional , op_distinto> \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_op_relacional","op_distinto");
+                    caracterActual = -2;
+                } else {
+                    // cadenaAux = "<tk_op_relacional , op_menor> \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_op_relacional","op_menor");
+                    caracterActual = -2;
+                    reader.reset();
+                }
+                break;
+
+            case '=':
+                // cadenaAux = "<tk_op_relacional , op_igual> \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_op_relacional","op_igual");
+                caracterActual = -2;
+                break;
+
+            case '>':
+                reader.mark(1);
+                caracterActual = leerCaracter();
+                if (caracterActual == '=') {
+                    // cadenaAux = "<tk_op_relacional , op_mayor_igual> \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_op_relacional","op_mayor_igual");
+
+                    caracterActual = -2;
+                } else {
+                    // cadenaAux = "<tk_op_relacional , op_mayor> \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_op_relacional","op_mayor");
+                    caracterActual = -2;
+                    reader.reset();
+                }
+                break;
+
+            case ',':
+                // cadenaAux = "<tk_coma , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_coma","");
+                caracterActual = -2;
+                break;
+
+            case ';':
+                // cadenaAux = "<tk_puntocoma , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_puntocoma","");
+                caracterActual = -2;
+                break;
+
+            case ':':
+                reader.mark(1);
+                caracterActual = leerCaracter();
+                if (caracterActual == '=') {
+                    // cadenaAux = "<tk_asignacion , > \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_asignacion","");
+                    caracterActual = -2;
+                } else {
+                    // cadenaAux = "<tk_dospuntos , > \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_dospuntos","");
+                    caracterActual = -2;
+                    reader.reset();
+                }
+                break;
+
+            case '.':
+                reader.mark(1);
+                caracterActual = leerCaracter();
+                if (caracterActual == '.') {
+                    // cadenaAux = "<tk_doblepunto , > \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_doblepunto","");
+                    caracterActual = -2;
+                } else {
+                    // cadenaAux = "<tk_punto , > \n";
+                    // fileWriter.write(cadenaAux);
+                    this.ultimoTokenGenerado = new Token("tk_punto","");
+                    caracterActual = -2;
+                    reader.mark(1);
+                }
+                break;
+
+            case '(':
+                // cadenaAux = "<tk_parentesis_izq , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_parentesis_izq","");
+                caracterActual = -2;
+                break;
+
+            case ')':
+                // cadenaAux = "<tk_parentesis_der , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_parentesis_der","");
+                caracterActual = -2;
+                break;
+
+            case '-':
+                // cadenaAux = "<tk_op_resta , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_op_resta","");
+                caracterActual = -2;
+                break;
+
+            case '+':
+                // cadenaAux = "<tk_op_suma , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_op_suma","");
+                caracterActual = -2;
+                break;
+
+            case '/':
+                // cadenaAux = "<tk_op_div , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_op_div","");
+                caracterActual = -2;
+                break;
+
+            case '*':
+                // cadenaAux = "<tk_op_mult , > \n";
+                // fileWriter.write(cadenaAux);
+                this.ultimoTokenGenerado = new Token("tk_op_mult","");
+                caracterActual = -2;
+                break;
+            case ' ': // Probablemente haya que ignorar, no devolver un <blank>, pero por ahora lo
+                      // dejamos
+                cadenaAux = "<blank> \n";
+                // fileWriter.write(cadenaAux);
+                caracterActual = -2;
+                break;
+
+            case '\n': // Probablemente haya que ignorar, no devolver un <newline>, pero por ahora lo
+                       // dejamos
+                cadenaAux = "<newline> \n";
+                // fileWriter.write(cadenaAux);
+                caracterActual = -2;
+                break;
+            case '\r': // Idem \n pero para CRLF
+                cadenaAux = "<newline> \n";
+                // fileWriter.write(cadenaAux);
+                caracterActual = -2;
+                break;
+            case '\t': // Probablemente haya que ignorar, no devolver un <tab>, pero por ahora lo
+                       // dejamos
+                cadenaAux = "<tab> \n";
+                // fileWriter.write(cadenaAux);
+                caracterActual = -2;
+                break;
+            case -1: // Probablemente haya que ignorar, no devolver un <fin_archivo>, pero por ahora
+                     // lo dejamos
+                cadenaAux = "<fin_archivo>";
+                // fileWriter.write(cadenaAux);
+                break;
+
+            default:
+                if (caracterActual == '{') {
+                    try {
+                        leerComentario();
+                        caracterActual = -2;
+                    } catch (Exception e) { // Si hubo una excepcion leyendo el comentario (eof o un '@')
+                        System.out.println(e.getMessage());
+                        caracterActual = -1;
+                        fileWriter.close();
+                        reader.close();
+                    }
+                } else { // ID y Numero
+                    if ((caracterActual >= 'A' && caracterActual <= 'Z')
+                            || (caracterActual >= 'a' && caracterActual <= 'z')) { // Si es una letra
+                                                                                   // (ID/Palabra Reservada)
+                        String identificador = leerID();
+                        if (palabrasReservadas.containsKey(identificador.toLowerCase())) {
+                            // cadenaAux = palabrasReservadas.get(identificador.toLowerCase()) + "\n";
+                            // fileWriter.write(cadenaAux);
+                            this.ultimoTokenGenerado = palabrasReservadas.get(identificador.toLowerCase());
+                            caracterActual = -2;
+                            reader.reset();
+                        } else {
+                            // cadenaAux = "<tk_id , " + identificador + "> \n";
+                            // fileWriter.write(cadenaAux);
+                            this.ultimoTokenGenerado = new Token("tk_id",identificador);
+                            caracterActual = -2;
+                            reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
+                        }
+                    } else { // No empieza con letra
+                        if (caracterActual >= '0' && caracterActual <= '9') {
+                            String numero = leerNum();
+                            // cadenaAux = "<tk_numero , " + numero + "> \n";
+                            // fileWriter.write(cadenaAux);
+                            this.ultimoTokenGenerado = new Token("tk_numero",numero);
+                            caracterActual = -2;
+                            reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
+                        } else { // Probablemente un caracter invalido
+                            cadenaAux = "Linea " + numLinea + ": <Error: caracter \""
+                                    + (char) caracterActual + "\" no valido> \n";
+                            fileWriter.write(cadenaAux);
+                            try {
+                                throw new Exception(cadenaAux);
+                            } catch (Exception e) {
+                                System.out.print(e.getMessage());
+                            }
+                            caracterActual = -1;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static void cargarPalabrasReservadas() {
-        palabrasReservadas = new HashMap<String, String>();
+/*         palabrasReservadas = new HashMap<String, String>();
         palabrasReservadas.put("and", "<tk_op_and , >");
         palabrasReservadas.put("or", "<tk_op_or , >");
         palabrasReservadas.put("not", "<tk_op_not , >");
@@ -270,10 +497,32 @@ public class AnalizadorLexico {
         palabrasReservadas.put("boolean", "<tk_tipo , tipo_boolean>");
         palabrasReservadas.put("integer", "<tk_tipo , tipo_integer>");
         palabrasReservadas.put("true", "<tk_boolean , valor_true>");
-        palabrasReservadas.put("false", "<tk_boolean , valor_false>");
+        palabrasReservadas.put("false", "<tk_boolean , valor_false>"); */
+
+        palabrasReservadas = new HashMap<String, Token>();
+        palabrasReservadas.put("and", new Token("tk_op_and",""));
+        palabrasReservadas.put("or", new Token("tk_op_or",""));
+        palabrasReservadas.put("not", new Token("tk_op_not",""));
+        palabrasReservadas.put("program", new Token("tk_program",""));
+        palabrasReservadas.put("begin", new Token("tk_begin",""));
+        palabrasReservadas.put("end", new Token("tk_end",""));
+        palabrasReservadas.put("function", new Token("tk_function",""));
+        palabrasReservadas.put("procedure", new Token("tk_procedure",""));
+        palabrasReservadas.put("var", new Token("tk_var",""));
+        palabrasReservadas.put("if", new Token("tk_if",""));
+        palabrasReservadas.put("then", new Token("tk_then",""));
+        palabrasReservadas.put("else", new Token("tk_else",""));
+        palabrasReservadas.put("while", new Token("tk_while",""));
+        palabrasReservadas.put("do", new Token("tk_do",""));
+        palabrasReservadas.put("read", new Token("tk_read",""));
+        palabrasReservadas.put("write", new Token("tk_write",""));
+        palabrasReservadas.put("boolean", new Token("tk_tipo","tipo_boolean"));
+        palabrasReservadas.put("integer", new Token("tk_tipo","tipo_integer"));
+        palabrasReservadas.put("true", new Token("tk_boolean","valor_true"));
+        palabrasReservadas.put("false", new Token("tk_boolean","valor_false"));
     }
 
-    public static String leerNum() {
+    public String leerNum() {
         // String numero = "";
         StringBuilder constructorNumero = new StringBuilder();
         try {
@@ -291,7 +540,7 @@ public class AnalizadorLexico {
         return constructorNumero.toString();
     }
 
-    public static String leerID() {
+    public String leerID() {
         // String identificador = "";
         StringBuilder constructorID = new StringBuilder();
         try {
@@ -310,7 +559,7 @@ public class AnalizadorLexico {
         return constructorID.toString();
     }
 
-    public static void leerComentario() throws Exception {
+    public void leerComentario() throws Exception {
 
         caracterActual = leerCaracter();
         int lineaComienzoComentario = numLinea;
@@ -332,7 +581,7 @@ public class AnalizadorLexico {
         }
     }
 
-    public static int leerCaracter() {
+    public int leerCaracter() {
         int caracter = -1;
         try {
             caracter = reader.read();
@@ -345,4 +594,5 @@ public class AnalizadorLexico {
 
         return caracter;
     }
+
 }
