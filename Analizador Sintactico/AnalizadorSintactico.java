@@ -13,9 +13,6 @@ public class AnalizadorSintactico {
         this.lexico = lexico;
         ultimoToken = null;
     }
-    public static void main(String[] args) {
-
-    }
 
     public void match(){
         

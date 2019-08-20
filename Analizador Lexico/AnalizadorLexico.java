@@ -14,18 +14,18 @@ public class AnalizadorLexico {
     // 1) Las palabras reservadas pueden estar en mayusculas, minisculas o
     // intercalado
 
-    private static HashMap<String, Token> palabrasReservadas;
+    private HashMap<String, Token> palabrasReservadas;
     private BufferedReader reader;
-    private static FileWriter fileWriter;
+    // private static FileWriter fileWriter;
     private int caracterActual;
     private Token ultimoTokenGenerado;
     private static int numLinea = 1;
 
     public AnalizadorLexico(String nombreArchivo){
-        cargarPalabrasReservadas();
+        this.cargarPalabrasReservadas();
         this.reader = new BufferedReader(new FileReader(nombreArchivo)); // Abre el archivo de lectura
         this.caracterActual = -2;
-        this.ultimoTokenGenerado = new Token();
+        this.ultimoTokenGenerado = null;
     }
 
 /*     public static void main(String[] args) {
@@ -474,9 +474,11 @@ public class AnalizadorLexico {
                 }
             }
         }
+
+        return ultimoTokenGenerado;
     }
 
-    public static void cargarPalabrasReservadas() {
+    private void cargarPalabrasReservadas() {
 /*         palabrasReservadas = new HashMap<String, String>();
         palabrasReservadas.put("and", "<tk_op_and , >");
         palabrasReservadas.put("or", "<tk_op_or , >");
@@ -499,7 +501,7 @@ public class AnalizadorLexico {
         palabrasReservadas.put("true", "<tk_boolean , valor_true>");
         palabrasReservadas.put("false", "<tk_boolean , valor_false>"); */
 
-        palabrasReservadas = new HashMap<String, Token>();
+        this.palabrasReservadas = new HashMap<String, Token>();
         palabrasReservadas.put("and", new Token("tk_op_and",""));
         palabrasReservadas.put("or", new Token("tk_op_or",""));
         palabrasReservadas.put("not", new Token("tk_op_not",""));
@@ -522,7 +524,7 @@ public class AnalizadorLexico {
         palabrasReservadas.put("false", new Token("tk_boolean","valor_false"));
     }
 
-    public String leerNum() {
+    private String leerNum() {
         // String numero = "";
         StringBuilder constructorNumero = new StringBuilder();
         try {
@@ -540,7 +542,7 @@ public class AnalizadorLexico {
         return constructorNumero.toString();
     }
 
-    public String leerID() {
+    private String leerID() {
         // String identificador = "";
         StringBuilder constructorID = new StringBuilder();
         try {
@@ -559,7 +561,7 @@ public class AnalizadorLexico {
         return constructorID.toString();
     }
 
-    public void leerComentario() throws Exception {
+    private void leerComentario() throws Exception {
 
         caracterActual = leerCaracter();
         int lineaComienzoComentario = numLinea;
@@ -581,7 +583,7 @@ public class AnalizadorLexico {
         }
     }
 
-    public int leerCaracter() {
+    private int leerCaracter() {
         int caracter = -1;
         try {
             caracter = reader.read();
