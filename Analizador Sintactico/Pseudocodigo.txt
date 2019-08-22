@@ -85,7 +85,7 @@ void identificador(){
 }
 
 void variables(){
-	while(match('var')){
+	while(match('tk_var')){
 		lista_identificadores();
 	}
 }

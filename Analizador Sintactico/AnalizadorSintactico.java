@@ -2,10 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.rmi.UnexpectedException;
 import java.util.HashMap;
 
-import com.sun.tools.example.debug.expr.Token;
 
 public class AnalizadorSintactico {
 
@@ -37,24 +35,44 @@ public class AnalizadorSintactico {
         match(new Token("tk_program"));
         match(new Token("tk_id"));
         match(new Token("tk_puntocoma"));
-        variables();
-        while (!match(new Token("tk_begin"))) {
-            funcion();
-            procedimiento();
+        if(ultimoToken.equals(new Token("tk_var"))){
+            variables();
         }
-        bloque();
-        while (!match(new Token("tk_end"))) {
+        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+            if(ultimoToken.equals(new Token("tk_function"))){
+                funcion();
+            }else{
+                procedimiento();
+            }
+        }
+
+        match(new Token("tk_begin"));
+        bloque(); 
+        while(ultimoToken.equals(new Token("tk_puntocoma"))){
             match(new Token("tk_puntocoma"));
             bloque();
         }
+        match(new Token("tk_end"));
         match(new Token("tk_punto"));
     }
 
     public void bloque(){
-        sentencia();
+        switch(ultimoToken.getNombreToken()){
+            case "tk_id":
+                break;
+            
+            case "tk_if":
+                break;
+
+            case "tk_while"
         
-        while (match(new Token("tk_puntocoma"))) {
-            bloque();
+        }
+        
+            sentencia();
+            while (ultimoToken.equals(new Token("tk_puntocoma"))) {
+                match(new Token("tk_puntocoma"));
+                bloque();
+            }
         }
         sentenciaCompuesta();
         while (condition) {
@@ -73,11 +91,49 @@ public class AnalizadorSintactico {
     }
 
     public void funcion(){
-
+        match(new Token("tk_function"));
+        identificador();
+        if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
+            match(new Token("tk_parentesis_izq"));
+            params();
+            match(new Token("tk_parentesis_der"));
+        }
+        match(new Token("tk_dospuntos"));
+        tipo();
+        match(new Token("tk_puntocoma"));
+        if(ultimoToken.equals(new Token("tk_var"))){
+            variables();
+        }
+        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+            if(ultimoToken.equals(new Token("tk_function"))){
+                funcion();
+            }else{
+                procedimiento();
+            }
+        }
+        sentenciaCompuesta();
+        match(new Token("tk_puntocoma"));
     }
 
     public void procedimiento(){
-        
+        match(new Token("procedure"));
+        identificador();
+        if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
+            match(new Token("tk_parentesis_izq"));
+            params();
+            match(new Token("tk_parentesis_der"));
+        }
+        match(new Token("tk_dospuntos"));
+        variable();
+        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+            if(ultimoToken.equals(new Token("tk_function"))){
+                funcion();
+            }else{
+                procedimiento();
+            }
+        }
+        sentenciaCompuesta();
+        match(new Token("tk_dospuntos"));
     }
 
     public void identificador(){
@@ -85,18 +141,30 @@ public class AnalizadorSintactico {
     }
 
     public void variables(){
-        while (match(new Token("tk_var"))) {
+        if(ultimoToken.equals(new Token("tk_var"))){
+            match(new Token("tk_var"));
             listaIdentificadores();
         }
+
+            
+        
 
     }
 
     public void params(){
+        
 
     }
 
     public void listaIdentificadores(){
-
+        match(new Token("tk_id"));
+        while(ultimoToken.equals(new Token("tk_puntocoma"))){
+            match(new Token("tk_puntocoma"));
+            match(new Token("tk_id"));
+        }
+        match(new Token("tk_dospuntos"));
+        tipo();
+        match(new Token("tk_puntocoma"));
     }
 
     public void alternativa(){
