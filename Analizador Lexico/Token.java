@@ -19,11 +19,11 @@ public class Token{
     }
 
     public String getNombreToken(){
-        return this.nombreToken;
+        return nombreToken;
     }
 
     public String getAtributoToken(){
-        return this.atributoToken;
+        return atributoToken;
     }
 
     public void setNombreToken(String nombreToken){
@@ -35,7 +35,7 @@ public class Token{
     }
 
     public boolean equals(Token t){
-        return t.getNombreToken().equalsIgnoreCase(this.nombreToken) && t.getAtributoToken().equalsIgnoreCase(this.atributoToken);
+        return t.getNombreToken().equalsIgnoreCase(nombreToken) && t.getAtributoToken().equalsIgnoreCase(atributoToken);
     }
 
     public String toString(){
