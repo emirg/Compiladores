@@ -11,15 +11,24 @@ public class AnalizadorSintactico {
 
     public AnalizadorSintactico(AnalizadorLexico lexico){
         this.lexico = lexico;
-        ultimoToken = null;
+        this.ultimoToken = null;
     }
 
-    public void match(){
+    public void match(Token t){
+        if(ultimoToken.equals(t)){
+            this.ultimoToken = lexico.obtenerToken();
+        }else{
+            // ERROR - Throw Exception
+        }
         
     }
 
     public void program(){
-        
+        this.ultimoToken = lexico.obtenerToken();
+        match(new Token("tk_program"));
+        match(new Token("tk_id"));
+        match(new Token("tk_puntocoma"));
+        variables();
     }
 
     public void bloque(){

@@ -8,6 +8,11 @@ public class Token{
         this.atributoToken = "";
     }
 
+    public Token(String nombreToken){
+        this.nombreToken = nombreToken;
+        this.atributoToken = "";
+    }
+
     public Token(String nombreToken, String atributoToken){
         this.nombreToken = nombreToken;
         this.atributoToken = atributoToken;
@@ -29,8 +34,14 @@ public class Token{
         this.atributoToken = atributoToken;
     }
 
+    public boolean equals(Token t){
+        return t.getNombreToken().equalsIgnoreCase(this.nombreToken) && t.getAtributoToken().equalsIgnoreCase(this.atributoToken);
+    }
+
     public String toString(){
         return "<" + nombreToken + " , " + atributoToken + ">";
     }
+
+    
 
 }
