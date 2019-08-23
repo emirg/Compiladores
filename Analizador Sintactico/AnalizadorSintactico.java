@@ -1,10 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-
-
 public class AnalizadorSintactico {
 
     private AnalizadorLexico lexico;
@@ -25,12 +18,12 @@ public class AnalizadorSintactico {
             if (tokenEsperado.equals("")) {
                 tokenEsperado = t.getNombreToken();
             }
-            throw new UnexpectedToken(s);
+            throw new UnexpectedToken(tokenEsperado);
         }
         return tokenMatched;
     }
 
-    public void program(){
+    public void program() throws UnexpectedToken {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
         match(new Token("tk_id"));
@@ -56,41 +49,55 @@ public class AnalizadorSintactico {
         match(new Token("tk_punto"));
     }
 
-    public void bloque(){
-        switch(ultimoToken.getNombreToken()){
-            case "tk_id":
-                break;
-            
-            case "tk_if":
-                break;
-
-            case "tk_while"
-        
-        }
-        
+    public void bloque() throws UnexpectedToken {
+        if(ultimoToken.equals(new Token("tk_begin"))){
+            sentenciaCompuesta();
+            while (ultimoToken.equals(new Token("tk_puntocoma"))) {
+                match(new Token("tk_puntocoma"));
+                bloque();
+            }
+        }else{
             sentencia();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
                 match(new Token("tk_puntocoma"));
                 bloque();
             }
         }
-        sentenciaCompuesta();
-        while (condition) {
-            
-        }
-
-        
     }
 
-    public void sentencia(){
+    public void sentencia() throws UnexpectedToken {
+        switch(ultimoToken.getNombreToken()){
+            // Asignacion y llamada a subprograma
+            case "tk_id":
+                match(new Token("tk_id"));
+                break;
 
+            // Alternativa
+            case "tk_if":
+                alternativa();
+                break;
+        
+            // Repetitiva
+            case "tk_while":
+                break; 
+            
+            // Leer
+            case "tk_read":
+                break; 
+            
+            // Escribir
+            case "tk_write":
+                break;
+            
+            default:                     
+        }
     }
 
     public void asignacion(){
 
     }
 
-    public void funcion(){
+    public void funcion() throws UnexpectedToken {
         match(new Token("tk_function"));
         identificador();
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
@@ -115,7 +122,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento(){
+    public void procedimiento() throws UnexpectedToken {
         match(new Token("procedure"));
         identificador();
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
@@ -124,7 +131,7 @@ public class AnalizadorSintactico {
             match(new Token("tk_parentesis_der"));
         }
         match(new Token("tk_dospuntos"));
-        variable();
+        variables();
         while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
@@ -140,15 +147,11 @@ public class AnalizadorSintactico {
 
     }
 
-    public void variables(){
+    public void variables() throws UnexpectedToken {
         if(ultimoToken.equals(new Token("tk_var"))){
             match(new Token("tk_var"));
             listaIdentificadores();
         }
-
-            
-        
-
     }
 
     public void params(){
@@ -156,23 +159,28 @@ public class AnalizadorSintactico {
 
     }
 
-    public void listaIdentificadores(){
+    public void listaIdentificadores() throws UnexpectedToken {
         match(new Token("tk_id"));
         while(ultimoToken.equals(new Token("tk_puntocoma"))){
             match(new Token("tk_puntocoma"));
             match(new Token("tk_id"));
         }
         match(new Token("tk_dospuntos"));
-        tipo();
+        // tipo();
+        match(new Token("tk_tipo"));
         match(new Token("tk_puntocoma"));
     }
 
-    public void alternativa(){
-
+    public void alternativa() throws UnexpectedToken {
+        match(new Token("tk_if"));
+        expresion();
+        match(new Token("tk_then"));
+        bloque();
+        alternativaAux();
     }
 
     public void alternativaAux(){
-
+        
     }
 
     public void repetitiva(){
@@ -191,8 +199,18 @@ public class AnalizadorSintactico {
 
     }
 
-    public void sentenciaCompuesta(){
+    public void sentenciaCompuesta() throws UnexpectedToken {
+        match(new Token("tk_begin"));
+        bloque();
+        match(new Token("tk_end"));
+    }
 
+    public void expresion(){
+
+    }
+
+    public void tipo(){
+        
     }
 	
 }
