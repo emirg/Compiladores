@@ -31,7 +31,7 @@ public class AnalizadorSintactico {
         if(ultimoToken.equals(new Token("tk_var"))){
             variables();
         }
-        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
             }else{
@@ -79,39 +79,45 @@ public class AnalizadorSintactico {
         
             // Repetitiva
             case "tk_while":
+                repetitiva();    
                 break; 
-            
+                
             // Leer
             case "tk_read":
+                leer();
                 break; 
-            
+
             // Escribir
             case "tk_write":
+                escribir();
                 break;
             
-            default:                     
+            default:
+                throw new UnexpectedToken("sentence");                     
         }
     }
 
-    public void asignacion(){
-
+    public void asignacion() throws UnexpectedToken {
+        match(new Token("tk_id"));
+        match(new Token("tk_asignacion"));
+        expresion();
     }
 
     public void funcion() throws UnexpectedToken {
         match(new Token("tk_function"));
-        identificador();
+        match(new Token("tk_id"));
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
             match(new Token("tk_parentesis_izq"));
             params();
             match(new Token("tk_parentesis_der"));
         }
         match(new Token("tk_dospuntos"));
-        tipo();
+        match(new Token("tk_tipo"));
         match(new Token("tk_puntocoma"));
         if(ultimoToken.equals(new Token("tk_var"))){
             variables();
         }
-        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
             }else{
@@ -123,8 +129,8 @@ public class AnalizadorSintactico {
     }
 
     public void procedimiento() throws UnexpectedToken {
-        match(new Token("procedure"));
-        identificador();
+        match(new Token("tk_procedure"));
+        match(new Token("tk_id"));
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
             match(new Token("tk_parentesis_izq"));
             params();
@@ -132,7 +138,7 @@ public class AnalizadorSintactico {
         }
         match(new Token("tk_dospuntos"));
         variables();
-        while (ultimoToken.equals(new Token("tk_function"))||ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
             }else{
@@ -141,10 +147,6 @@ public class AnalizadorSintactico {
         }
         sentenciaCompuesta();
         match(new Token("tk_dospuntos"));
-    }
-
-    public void identificador(){
-
     }
 
     public void variables() throws UnexpectedToken {
@@ -179,24 +181,35 @@ public class AnalizadorSintactico {
         alternativaAux();
     }
 
-    public void alternativaAux(){
+    public void alternativaAux() throws UnexpectedToken{
         
     }
 
-    public void repetitiva(){
-
+    public void repetitiva() throws UnexpectedToken {
+        match(new Token("tk_while"));
+        expresion();
+        match(new Token("tk_do"));
+        bloque();
     }
 
-    public void llamadaSub(){
+    public void llamadaSub() throws UnexpectedToken{
+        match(new Token("tk_id"));
 
+        
     }
 
-    public void leer(){
-
+    public void leer() throws UnexpectedToken{
+        match(new Token("tk_read"));
+        match(new Token("tk_parentesis_izq"));
+        match(new Token("tk_id"));
+        match(new Token("tk_parentesis_der"));
     }
 
-    public void escribir(){
-
+    public void escribir() throws UnexpectedToken{
+        match(new Token("tk_write"));
+        match(new Token("tk_parentesis_izq"));
+        match(new Token("tk_id"));
+        match(new Token("tk_parentesis_der"));
     }
 
     public void sentenciaCompuesta() throws UnexpectedToken {
@@ -205,12 +218,28 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
     }
 
-    public void expresion(){
+    public void expresion() throws UnexpectedToken{
 
     }
 
-    public void tipo(){
-        
+    public void factor() throws UnexpectedToken{
+        switch(ultimoToken.getNombreToken()){
+            // Identificador o llamada subprograma
+            case "tk_id":
+                match(new Token("tk_id"));
+                break;
+            case "tk_numero":
+                match(new Token("tk_numero"));
+                break;
+            case "tk_boolean":
+                match(new Token("tk_boolean"));
+                break;
+            case "tk_parentesis_izq":
+                match(new Token("tk_parentesis_izq"));
+                expresion();
+                match(new Token("tk_parentesis_der"));
+                break;
+        }
     }
 	
 }
