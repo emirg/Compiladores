@@ -231,7 +231,127 @@ public class AnalizadorSintactico {
     }
 
     public void expresion() throws UnexpectedToken{
+        expresion_1();
+        expresionAux();
+    }
 
+    public void expresionAux() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_or"))) {
+            match(new Token("tk_op_or"));
+            expresion_1();
+            expresionAux();
+        }
+    }
+
+    public void expresion_1() throws UnexpectedToken{
+        expresion_2();
+        expresion_1_aux();
+    }
+
+    public void expresion_1_aux() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_and"))) {
+            match(new Token("tk_op_and"));
+            expresion_2();
+            expresion_1_aux();
+        }
+    }
+
+    public void expresion_2() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_not"))) {
+            match(new Token("tk_op_not"));
+        }
+        expresion_3();
+    }
+
+    public void expresion_3() throws UnexpectedToken{
+        expresion_4();
+        expresion_3_aux();
+    }
+
+    public void expresion_3_aux() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_relacional"))) {
+            operador_comparacion();
+            expresion_4();
+            expresion_3_aux();
+        }
+    }
+
+    public void expresion_4() throws UnexpectedToken{
+        expresion_5();
+        expresion_4_aux();
+    }
+
+    public void expresion_4_aux() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_suma"))) {
+            match(new Token("tk_op_suma"));
+            expresion_5();
+            expresion_4_aux();
+        }else{
+            if (ultimoToken.equals(new Token("tk_op_resta"))) {
+                match(new Token("tk_op_resta"));
+                expresion_5();
+                expresion_4_aux();
+            }
+        }
+    }
+
+    public void expresion_5() throws UnexpectedToken{
+        expresion_6();
+        expresion_5_aux();
+    }
+
+    public void expresion_5_aux() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_mult"))) {
+            match(new Token("tk_op_mult"));
+            expresion_6();
+            expresion_5_aux();
+        }else{
+            if (ultimoToken.equals(new Token("tk_op_div"))) {
+                match(new Token("tk_op_div"));
+                expresion_6();
+                expresion_5_aux();
+            }
+        }
+    }
+
+    public void expresion_6() throws UnexpectedToken{
+        if (ultimoToken.equals(new Token("tk_op_suma"))) {
+            match(new Token("tk_op_suma"));
+            factor();
+        }else{
+            if (ultimoToken.equals(new Token("tk_op_resta"))) {
+                match(new Token("tk_op_resta"));
+                factor();
+            }
+        }
+    }
+
+    public void operador_comparacion() throws UnexpectedToken {
+        switch (ultimoToken.getAtributoToken()) {
+            case "op_igual":
+                match(new Token("tk_op_relacional","op_igual"));
+                break;
+
+            case "op_mayor":
+                match(new Token("tk_op_relacional","op_mayor"));
+                break;
+            
+            case "op_menor":
+                match(new Token("tk_op_relacional","op_menor"));
+                break;
+
+            case "op_distinto":
+                match(new Token("tk_op_relacional","op_distinto")); 
+                break;
+            
+            case "op_mayor_igual":
+                match(new Token("tk_op_relacional","op_mayor_igual"));   
+                break;
+
+            case "op_menor_igual":
+                match(new Token("tk_op_relacional","op_menor_igual"));  
+                break;
+        }
     }
 
     public void factor() throws UnexpectedToken{
