@@ -26,7 +26,8 @@ public class AnalizadorSintactico {
     public void program() throws UnexpectedToken {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
-        match(new Token("tk_id"));
+        //match(new Token("tk_id")); //no deberiamos tener identificador
+        identificador();
         match(new Token("tk_puntocoma"));
         if(ultimoToken.equals(new Token("tk_var"))){
             variables();
@@ -62,6 +63,12 @@ public class AnalizadorSintactico {
                 match(new Token("tk_puntocoma"));
                 bloque();
             }
+        }
+    }
+    public void identificador() throws UnexpectedToken{
+        match(new Token("tk_id"));//falta verificar que el primero sea letra
+        while (ultimoToken.equals(new Token("tk_id"))) {
+            match(new Token("tk_id")); 
         }
     }
 
