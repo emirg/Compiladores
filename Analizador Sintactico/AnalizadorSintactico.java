@@ -156,9 +156,11 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void params(){
-        
-
+    public void params() throws UnexpectedToken{
+        while(ultimoToken.getNombreToken()=="tk_id"){
+            match(new Token("tk_id"));
+            listaIdentificadores();
+        }
     }
 
     public void listaIdentificadores() throws UnexpectedToken {
@@ -182,7 +184,10 @@ public class AnalizadorSintactico {
     }
 
     public void alternativaAux() throws UnexpectedToken{
-        
+        if(ultimoToken.equals(new Token("tk_else"))){
+            match(new Token("tk_else"));
+            bloque();
+        }
     }
 
     public void repetitiva() throws UnexpectedToken {
@@ -193,9 +198,16 @@ public class AnalizadorSintactico {
     }
 
     public void llamadaSub() throws UnexpectedToken{
-        match(new Token("tk_id"));
-
-        
+        match(new Token("tk_id")); // no tenemos metodo identificador?
+        if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
+            match(new Token("tk_parentesis_izq"));
+            expresion();
+            while(ultimoToken.equals(new Token("tk_coma"))){
+                match(new Token("tk_coma"));
+                expresion();
+            }
+            match(new Token("tk_parentesis_der"));
+        }
     }
 
     public void leer() throws UnexpectedToken{

@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Compilador",
+            "request": "launch",
+            "mainClass": "Compilador",
+            "projectName": "Compiladores_ae1971fc"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - AnalizadorLexico",
             "request": "launch",
             "mainClass": "AnalizadorLexico",
