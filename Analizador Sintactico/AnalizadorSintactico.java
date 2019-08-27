@@ -170,8 +170,8 @@ public class AnalizadorSintactico {
 
     public void listaIdentificadores() throws UnexpectedToken {
         match(new Token("tk_id"));
-        while(ultimoToken.equals(new Token("tk_puntocoma"))){
-            match(new Token("tk_puntocoma"));
+        while(ultimoToken.equals(new Token("tk_coma"))){
+            match(new Token("tk_coma"));
             match(new Token("tk_id"));
         }
         match(new Token("tk_dospuntos"));
