@@ -58,13 +58,18 @@ public class AnalizadorSintactico {
             sentenciaCompuesta();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
                 match(new Token("tk_puntocoma"));
-                bloque();
+                if (!ultimoToken.equals(new Token("tk_end"))) {
+                    bloque();
+                }
+                
             }
         }else{
             sentencia();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
                 match(new Token("tk_puntocoma"));
-                bloque();
+                if (!ultimoToken.equals(new Token("tk_end"))) {
+                    bloque();
+                }
             }
         }
     }
