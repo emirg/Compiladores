@@ -15,7 +15,7 @@ public class AnalizadorSintactico {
         System.out.println(tokenMatched);
         if(tokenMatched){
             this.ultimoToken = lexico.obtenerToken();
-            System.out.println(ultimoToken.getNombreToken());
+            //System.out.println(ultimoToken.getNombreToken());
         }else{
             // ERROR - Throw Exception
             String tokenEsperado = t.getAtributoToken();
@@ -170,7 +170,7 @@ public class AnalizadorSintactico {
 
     public void params() throws UnexpectedToken{
         while(ultimoToken.equals(new Token("tk_id"))){
-            match(new Token("tk_id"));
+            //match(new Token("tk_id")); no va ya se hace eb listaId
             listaIdentificadores();
         }
     }
