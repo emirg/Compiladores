@@ -35,7 +35,7 @@ public class Token{
     }
 
     public boolean equals(Token t){
-        return t.getNombreToken().equalsIgnoreCase(nombreToken) && t.getAtributoToken().equalsIgnoreCase(atributoToken);
+        return t.getNombreToken().equalsIgnoreCase(nombreToken); //&& t.getAtributoToken().equalsIgnoreCase(atributoToken);
     }
 
     public String toString(){

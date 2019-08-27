@@ -7,7 +7,7 @@ public class Compilador {
         //AnalizadorLexico lexico = new AnalizadorLexico("C:\\Users\\emi_r\\Documents\\Git\\Compiladores\\Analizador Sintactico\\tests\\Ej01a.pas");
 
         //PC German
-        AnalizadorLexico lexico = new AnalizadorLexico("/home/german/Escritorio/Compiladores/Analizador Sintactico/tests/Ej01a.pas");
+        AnalizadorLexico lexico = new AnalizadorLexico("/home/german/Escritorio/Compiladores/Analizador Sintactico/tests/Ej03b.pas");
 
         AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico);
         try {

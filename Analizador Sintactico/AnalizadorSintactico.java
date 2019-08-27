@@ -9,9 +9,13 @@ public class AnalizadorSintactico {
     }
 
     public boolean match(Token t) throws UnexpectedToken{
-        boolean tokenMatched= ultimoToken.equals(t);
+        boolean tokenMatched=ultimoToken.equals(t);
+        System.out.println("parametro    :"+t.getNombreToken());
+        System.out.println("ultimo token :"+ultimoToken.getNombreToken());
+        System.out.println(tokenMatched);
         if(tokenMatched){
             this.ultimoToken = lexico.obtenerToken();
+            System.out.println(ultimoToken.getNombreToken());
         }else{
             // ERROR - Throw Exception
             String tokenEsperado = t.getAtributoToken();
@@ -26,10 +30,9 @@ public class AnalizadorSintactico {
     public void program() throws UnexpectedToken {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
-        //match(new Token("tk_id")); //no deberiamos tener identificador
-        identificador();
+        match(new Token("tk_id")); 
         match(new Token("tk_puntocoma"));
-        if(ultimoToken.equals(new Token("tk_var"))){
+        while(ultimoToken.equals(new Token("tk_var"))){
             variables();
         }
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
@@ -65,18 +68,13 @@ public class AnalizadorSintactico {
             }
         }
     }
-    public void identificador() throws UnexpectedToken{
-        match(new Token("tk_id"));//falta verificar que el primero sea letra
-        while (ultimoToken.equals(new Token("tk_id"))) {
-            match(new Token("tk_id")); 
-        }
-    }
 
     public void sentencia() throws UnexpectedToken {
         switch(ultimoToken.getNombreToken()){
             // Asignacion y llamada a subprograma
             case "tk_id":
-                match(new Token("tk_id"));
+                //match(new Token("tk_id"));
+                asignacion();
                 break;
 
             // Alternativa
@@ -100,7 +98,7 @@ public class AnalizadorSintactico {
                 break;
             
             default:
-                throw new UnexpectedToken("sentence");                     
+                throw new UnexpectedToken("sentence");                   
         }
     }
 
@@ -328,6 +326,8 @@ public class AnalizadorSintactico {
         }else{
             if (ultimoToken.equals(new Token("tk_op_resta"))) {
                 match(new Token("tk_op_resta"));
+                factor();
+            }else{
                 factor();
             }
         }

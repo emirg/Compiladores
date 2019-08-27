@@ -259,7 +259,7 @@ public class AnalizadorLexico {
 
     public Token obtenerToken(){
         try{
-            if (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
+            while (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
                 caracterActual = leerCaracter();
                 // System.out.println((char) caracterActual);
                 switch (caracterActual) {
@@ -270,17 +270,17 @@ public class AnalizadorLexico {
                         // cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_op_relacional", "op_menor_igual");
-                        caracterActual = -2;
+                        caracterActual = -1;
                     } else if (caracterActual == '>') {
                         // cadenaAux = "<tk_op_relacional , op_distinto> \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_op_relacional","op_distinto");
-                        caracterActual = -2;
+                        caracterActual = -1;
                     } else {
                         // cadenaAux = "<tk_op_relacional , op_menor> \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_op_relacional","op_menor");
-                        caracterActual = -2;
+                        caracterActual = -1;
                         reader.reset();
                     }
                     break;
@@ -289,7 +289,7 @@ public class AnalizadorLexico {
                     // cadenaAux = "<tk_op_relacional , op_igual> \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_op_relacional","op_igual");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case '>':
@@ -300,12 +300,12 @@ public class AnalizadorLexico {
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_op_relacional","op_mayor_igual");
 
-                        caracterActual = -2;
+                        caracterActual = -1;
                     } else {
                         // cadenaAux = "<tk_op_relacional , op_mayor> \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_op_relacional","op_mayor");
-                        caracterActual = -2;
+                        caracterActual = -1;
                         reader.reset();
                     }
                     break;
@@ -314,14 +314,14 @@ public class AnalizadorLexico {
                     // cadenaAux = "<tk_coma , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_coma","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case ';':
                     // cadenaAux = "<tk_puntocoma , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_puntocoma","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case ':':
@@ -331,12 +331,12 @@ public class AnalizadorLexico {
                         // cadenaAux = "<tk_asignacion , > \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_asignacion","");
-                        caracterActual = -2;
+                        caracterActual = -1;
                     } else {
                         // cadenaAux = "<tk_dospuntos , > \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_dospuntos","");
-                        caracterActual = -2;
+                        caracterActual = -1;
                         reader.reset();
                     }
                     break;
@@ -348,12 +348,12 @@ public class AnalizadorLexico {
                         // cadenaAux = "<tk_doblepunto , > \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_doblepunto","");
-                        caracterActual = -2;
+                        caracterActual = -1;
                     } else {
                         // cadenaAux = "<tk_punto , > \n";
                         // fileWriter.write(cadenaAux);
                         this.ultimoTokenGenerado = new Token("tk_punto","");
-                        caracterActual = -2;
+                        caracterActual = -1;
                         reader.mark(1);
                     }
                     break;
@@ -362,47 +362,48 @@ public class AnalizadorLexico {
                     // cadenaAux = "<tk_parentesis_izq , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_parentesis_izq","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case ')':
                     // cadenaAux = "<tk_parentesis_der , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_parentesis_der","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case '-':
                     // cadenaAux = "<tk_op_resta , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_op_resta","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case '+':
                     // cadenaAux = "<tk_op_suma , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_op_suma","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case '/':
                     // cadenaAux = "<tk_op_div , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_op_div","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
 
                 case '*':
                     // cadenaAux = "<tk_op_mult , > \n";
                     // fileWriter.write(cadenaAux);
                     this.ultimoTokenGenerado = new Token("tk_op_mult","");
-                    caracterActual = -2;
+                    caracterActual = -1;
                     break;
                 case ' ': // Probablemente haya que ignorar, no devolver un <blank>, pero por ahora lo
                         // dejamos
                     // cadenaAux = "<blank> \n";
                     // fileWriter.write(cadenaAux);
+                    //System.out.println("leyendo espacio");
                     caracterActual = -2;
                     break;
 
@@ -449,13 +450,13 @@ public class AnalizadorLexico {
                                 // cadenaAux = palabrasReservadas.get(identificador.toLowerCase()) + "\n";
                                 // fileWriter.write(cadenaAux);
                                 this.ultimoTokenGenerado = palabrasReservadas.get(identificador.toLowerCase());
-                                caracterActual = -2;
+                                caracterActual = -1;
                                 reader.reset();
                             } else {
                                 // cadenaAux = "<tk_id , " + identificador + "> \n";
                                 // fileWriter.write(cadenaAux);
                                 this.ultimoTokenGenerado = new Token("tk_id",identificador);
-                                caracterActual = -2;
+                                caracterActual = -1;
                                 reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
                             }
                         } else { // No empieza con letra
@@ -464,7 +465,7 @@ public class AnalizadorLexico {
                                 // cadenaAux = "<tk_numero , " + numero + "> \n";
                                 // fileWriter.write(cadenaAux);
                                 this.ultimoTokenGenerado = new Token("tk_numero",numero);
-                                caracterActual = -2;
+                                caracterActual = -1;
                                 reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
                             } else { // Probablemente un caracter invalido
                                 String cadenaAux = "Linea " + numLinea + ": <Error: caracter \""
@@ -484,7 +485,7 @@ public class AnalizadorLexico {
         }catch(IOException exception){
         
         }
-
+        caracterActual=-2;
         return ultimoTokenGenerado;
     }
 
