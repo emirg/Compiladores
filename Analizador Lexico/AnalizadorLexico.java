@@ -489,6 +489,10 @@ public class AnalizadorLexico {
         return ultimoTokenGenerado;
     }
 
+    public int obtenerNumeroLinea(){
+        return numLinea;
+    }
+
     private void cargarPalabrasReservadas() {
 /*         palabrasReservadas = new HashMap<String, String>();
         palabrasReservadas.put("and", "<tk_op_and , >");

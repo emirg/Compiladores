@@ -22,7 +22,7 @@ public class AnalizadorSintactico {
             if (tokenEsperado.equals("")) {
                 tokenEsperado = t.getNombreToken();
             }
-            throw new UnexpectedToken(tokenEsperado);
+            throw new UnexpectedToken(tokenEsperado, lexico.obtenerNumeroLinea());
         }
         return tokenMatched;
     }
@@ -103,7 +103,7 @@ public class AnalizadorSintactico {
                 break;
             
             default:
-                throw new UnexpectedToken("sentence");                   
+                throw new UnexpectedToken("sentence", lexico.obtenerNumeroLinea());                   
         }
     }
 
