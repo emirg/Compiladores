@@ -157,12 +157,14 @@ public class AnalizadorSintactico {
     public void variables() throws UnexpectedToken {
         if(ultimoToken.equals(new Token("tk_var"))){
             match(new Token("tk_var"));
-            listaIdentificadores();
+            do{
+                listaIdentificadores();
+            }while(ultimoToken.equals(new Token("tk_id")));
         }
     }
 
     public void params() throws UnexpectedToken{
-        while(ultimoToken.getNombreToken()=="tk_id"){
+        while(ultimoToken.equals(new Token("tk_id"))){
             match(new Token("tk_id"));
             listaIdentificadores();
         }
