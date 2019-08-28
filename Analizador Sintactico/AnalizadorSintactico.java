@@ -32,7 +32,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_program"));
         match(new Token("tk_id")); 
         match(new Token("tk_puntocoma"));
-        while(ultimoToken.equals(new Token("tk_var"))){
+        if(ultimoToken.equals(new Token("tk_var"))){
             variables();
         }
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedure"))) {
@@ -49,6 +49,9 @@ public class AnalizadorSintactico {
             match(new Token("tk_puntocoma"));
             bloque();
         }
+        if(ultimoToken.equals(new Token("tk_puntocoma"))){
+            match(new Token("tk_puntocoma"));
+        }
         match(new Token("tk_end"));
         match(new Token("tk_punto"));
     }
@@ -60,6 +63,8 @@ public class AnalizadorSintactico {
                 match(new Token("tk_puntocoma"));
                 if (!ultimoToken.equals(new Token("tk_end"))) {
                     bloque();
+                }else{
+                    match(new Token("tk_end")); // faltaba 
                 }
                 
             }
@@ -78,8 +83,7 @@ public class AnalizadorSintactico {
         switch(ultimoToken.getNombreToken()){
             // Asignacion y llamada a subprograma
             case "tk_id":
-                match(new Token("tk_id"));
-                //System.out.println(ultimoToken.getNombreToken());
+                match(new Token("tk_id")); // no respeta la gramatica pero quitarlo complica el if
                 if (ultimoToken.equals(new Token("tk_asignacion"))) {
                    asignacion();    
                 } else {
@@ -121,6 +125,7 @@ public class AnalizadorSintactico {
     public void funcion() throws UnexpectedToken {
         match(new Token("tk_function"));
         match(new Token("tk_id"));
+        /* los parenteisis son condicionales? o solo los parametros internos  */
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
             match(new Token("tk_parentesis_izq"));
             params();
@@ -152,7 +157,10 @@ public class AnalizadorSintactico {
             match(new Token("tk_parentesis_der"));
         }
         match(new Token("tk_puntocoma"));
-        variables();
+        /* la gramatica dice que es condicional y no lo estaba */
+        if(ultimoToken.equals(new Token("tk_var"))){
+            variables();
+        }
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
@@ -188,9 +196,7 @@ public class AnalizadorSintactico {
             match(new Token("tk_id"));
         }
         match(new Token("tk_dospuntos"));
-        // tipo();
         match(new Token("tk_tipo"));
-        //match(new Token("tk_puntocoma"));
     }
 
     public void alternativa() throws UnexpectedToken {
@@ -216,7 +222,7 @@ public class AnalizadorSintactico {
     }
 
     public void llamadaSub() throws UnexpectedToken{
-        //match(new Token("tk_id")); 
+        //match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
             match(new Token("tk_parentesis_izq"));
             expresion();
@@ -245,6 +251,10 @@ public class AnalizadorSintactico {
     public void sentenciaCompuesta() throws UnexpectedToken {
         match(new Token("tk_begin"));
         bloque();
+        /* modificacion reciente de la gramatica*/
+        if (ultimoToken.equals(new Token("tk_puntocoma"))) {
+            match(new Token("tk_puntocoma"));
+        }
         match(new Token("tk_end"));
     }
 
@@ -371,6 +381,10 @@ public class AnalizadorSintactico {
             case "op_menor_igual":
                 match(new Token("tk_op_relacional","op_menor_igual"));  
                 break;
+                
+            default:
+                throw new UnexpectedToken("operador comparacion", lexico.obtenerNumeroLinea());
+
         }
     }
 
