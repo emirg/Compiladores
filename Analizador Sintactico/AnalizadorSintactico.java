@@ -78,8 +78,13 @@ public class AnalizadorSintactico {
         switch(ultimoToken.getNombreToken()){
             // Asignacion y llamada a subprograma
             case "tk_id":
-                //match(new Token("tk_id"));
-                asignacion();
+                match(new Token("tk_id"));
+                //System.out.println(ultimoToken.getNombreToken());
+                if (ultimoToken.equals(new Token("tk_asignacion"))) {
+                   asignacion();    
+                } else {
+                    llamadaSub();
+                }
                 break;
 
             // Alternativa
@@ -108,7 +113,7 @@ public class AnalizadorSintactico {
     }
 
     public void asignacion() throws UnexpectedToken {
-        match(new Token("tk_id"));
+        //match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         expresion();
     }
@@ -211,7 +216,7 @@ public class AnalizadorSintactico {
     }
 
     public void llamadaSub() throws UnexpectedToken{
-        match(new Token("tk_id")); // no tenemos metodo identificador?
+        //match(new Token("tk_id")); 
         if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
             match(new Token("tk_parentesis_izq"));
             expresion();
