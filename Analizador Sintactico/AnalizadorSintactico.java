@@ -151,7 +151,7 @@ public class AnalizadorSintactico {
             params();
             match(new Token("tk_parentesis_der"));
         }
-        match(new Token("tk_dospuntos"));
+        match(new Token("tk_puntocoma"));
         variables();
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
@@ -161,7 +161,7 @@ public class AnalizadorSintactico {
             }
         }
         sentenciaCompuesta();
-        match(new Token("tk_dospuntos"));
+        match(new Token("tk_puntocoma"));
     }
 
     public void variables() throws UnexpectedToken {
@@ -177,7 +177,6 @@ public class AnalizadorSintactico {
 
     public void params() throws UnexpectedToken{
         while(ultimoToken.equals(new Token("tk_id"))){
-            //match(new Token("tk_id")); no va ya se hace eb listaId
             listaIdentificadores();
         }
     }
