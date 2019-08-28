@@ -1,6 +1,13 @@
+package AnalizadorSintactico;
+
+
+import AnalizadorLexico.Token;
+import AnalizadorLexico.AnalizadorLexico;
+import Exceptions.UnexpectedToken;
+
 public class AnalizadorSintactico {
 
-    private AnalizadorLexico lexico;
+    private final AnalizadorLexico lexico;
     private Token ultimoToken;
 
     public AnalizadorSintactico(AnalizadorLexico lexico){

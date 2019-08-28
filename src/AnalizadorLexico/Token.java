@@ -1,3 +1,5 @@
+package AnalizadorLexico;
+
 public class Token{
 
     private String nombreToken;

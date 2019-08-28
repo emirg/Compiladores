@@ -1,3 +1,5 @@
+package Exceptions;
+
 public class UnexpectedToken extends Exception{
     private static final long serialVersionUID = 1L;
 
