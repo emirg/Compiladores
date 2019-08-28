@@ -169,8 +169,9 @@ public class AnalizadorSintactico {
             match(new Token("tk_var"));
             do{
                 listaIdentificadores();
+                match(new Token("tk_puntocoma"));
             }while(ultimoToken.equals(new Token("tk_id")));
-            match(new Token("tk_puntocoma"));
+            
         }
     }
 
@@ -190,7 +191,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_dospuntos"));
         // tipo();
         match(new Token("tk_tipo"));
-        //match(new Token("tk_puntocoma")); // TODO: Este puntocoma no deberia ir aca, porque para los parametros no se usa 
+        //match(new Token("tk_puntocoma"));
     }
 
     public void alternativa() throws UnexpectedToken {
