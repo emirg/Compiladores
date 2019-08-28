@@ -35,7 +35,7 @@ public class AnalizadorSintactico {
         while(ultimoToken.equals(new Token("tk_var"))){
             variables();
         }
-        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedure"))) {
             if(ultimoToken.equals(new Token("tk_function"))){
                 funcion();
             }else{
@@ -184,7 +184,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_dospuntos"));
         // tipo();
         match(new Token("tk_tipo"));
-        match(new Token("tk_puntocoma"));
+        match(new Token("tk_puntocoma")); // TODO: Este puntocoma no deberia ir aca, porque para los parametros no se usa
     }
 
     public void alternativa() throws UnexpectedToken {
