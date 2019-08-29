@@ -12,7 +12,7 @@ public class AnalizadorSintactico {
         boolean tokenMatched=ultimoToken.equals(t);
         System.out.println("parametro    :"+t.getNombreToken());
         System.out.println("ultimo token :"+ultimoToken.getNombreToken());
-        System.out.println(tokenMatched);
+        //System.out.println(tokenMatched);
         if(tokenMatched){
             this.ultimoToken = lexico.obtenerToken();
             //System.out.println(ultimoToken.getNombreToken());
@@ -63,8 +63,6 @@ public class AnalizadorSintactico {
                 match(new Token("tk_puntocoma"));
                 if (!ultimoToken.equals(new Token("tk_end"))) {
                     bloque();
-                }else{
-                    match(new Token("tk_end")); // faltaba 
                 }
                 
             }
@@ -381,7 +379,7 @@ public class AnalizadorSintactico {
             case "op_menor_igual":
                 match(new Token("tk_op_relacional","op_menor_igual"));  
                 break;
-                
+
             default:
                 throw new UnexpectedToken("operador comparacion", lexico.obtenerNumeroLinea());
 
