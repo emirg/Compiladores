@@ -2,16 +2,20 @@ package AnalizadorSintactico;
 
 import AnalizadorLexico.Token;
 import AnalizadorLexico.AnalizadorLexico;
+import AnalizadorSemantico.TablaSimbolo;
 import Exceptions.UnexpectedToken;
+import java.util.Stack;
 
 public class AnalizadorSintactico {
 
     private final AnalizadorLexico lexico;
+    private Stack<TablaSimbolo> tablasSimbolo;
     private Token ultimoToken;
 
     public AnalizadorSintactico(AnalizadorLexico lexico) {
         this.lexico = lexico;
         this.ultimoToken = null;
+        this.tablasSimbolo = new Stack();
     }
 
     public boolean match(Token t) throws UnexpectedToken {
