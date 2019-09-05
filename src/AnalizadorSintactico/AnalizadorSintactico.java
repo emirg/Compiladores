@@ -32,7 +32,13 @@ public class AnalizadorSintactico {
             if (tokenEsperado.equals("")) {
                 tokenEsperado = t.getNombreToken();
             }
-            throw new UnexpectedToken(tokenEsperado, lexico.obtenerNumeroLinea());
+
+            String tokenEncontrado = ultimoToken.getAtributoToken();
+            if (tokenEncontrado.equals("")) {
+                tokenEncontrado = ultimoToken.getNombreToken();
+            }
+
+            throw new UnexpectedToken(tokenEsperado, tokenEncontrado, lexico.obtenerNumeroLinea());
         }
         return tokenMatched;
     }
@@ -119,7 +125,12 @@ public class AnalizadorSintactico {
                 break;
 
             default:
-                throw new UnexpectedToken("sentence", lexico.obtenerNumeroLinea());
+                String tokenEncontrado = ultimoToken.getAtributoToken();
+                if (tokenEncontrado.equals("")) {
+                    tokenEncontrado = ultimoToken.getNombreToken();
+                }
+
+                throw new UnexpectedToken("Sentencia", tokenEncontrado, lexico.obtenerNumeroLinea());
         }
     }
 
@@ -390,7 +401,12 @@ public class AnalizadorSintactico {
                 break;
 
             default:
-                throw new UnexpectedToken("operador comparacion", lexico.obtenerNumeroLinea());
+                String tokenEncontrado = ultimoToken.getAtributoToken();
+                if (tokenEncontrado.equals("")) {
+                    tokenEncontrado = ultimoToken.getNombreToken();
+                }
+
+                throw new UnexpectedToken("Operador comparación", tokenEncontrado, lexico.obtenerNumeroLinea());
 
         }
     }
@@ -400,7 +416,7 @@ public class AnalizadorSintactico {
             // Identificador o llamada subprograma
             case "tk_id":
                 match(new Token("tk_id"));
-                if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
+                if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     llamadaSub();
                 }
                 break;
@@ -416,7 +432,12 @@ public class AnalizadorSintactico {
                 match(new Token("tk_parentesis_der"));
                 break;
             default:
-                throw new UnexpectedToken("factor", lexico.obtenerNumeroLinea());
+                String tokenEncontrado = ultimoToken.getAtributoToken();
+                if (tokenEncontrado.equals("")) {
+                    tokenEncontrado = ultimoToken.getNombreToken();
+                }
+
+                throw new UnexpectedToken("factor", tokenEncontrado, lexico.obtenerNumeroLinea());
         }
     }
 
