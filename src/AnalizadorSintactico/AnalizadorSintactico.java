@@ -415,6 +415,8 @@ public class AnalizadorSintactico {
                 expresion();
                 match(new Token("tk_parentesis_der"));
                 break;
+            default:
+                throw new UnexpectedToken("factor", lexico.obtenerNumeroLinea());
         }
     }
 
