@@ -400,6 +400,9 @@ public class AnalizadorSintactico {
             // Identificador o llamada subprograma
             case "tk_id":
                 match(new Token("tk_id"));
+                if(ultimoToken.equals(new Token("tk_parentesis_izq"))){
+                    llamadaSub();
+                }
                 break;
             case "tk_numero":
                 match(new Token("tk_numero"));
