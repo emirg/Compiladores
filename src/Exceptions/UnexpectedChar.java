@@ -12,7 +12,7 @@ package Exceptions;
 public class UnexpectedChar extends LexicalException{
     private static final long serialVersionUID = 1L;
 
-    public UnexpectedChar(String found, int numLine) {
+    public UnexpectedChar(char found, int numLine) {
         super("Unexpected character. '" + found + "' is not a recognizable character", numLine);
     }
 }

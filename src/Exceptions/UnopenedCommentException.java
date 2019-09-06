@@ -14,6 +14,6 @@ public class UnopenedCommentException extends LexicalException {
     private static final long serialVersionUID = 1L;
 
     public UnopenedCommentException(int numLine) {
-        super("Comment not opened", numLine);
+        super("Comment was never opened", numLine);
     }
 }

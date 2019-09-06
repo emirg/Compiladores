@@ -1,5 +1,8 @@
 package AnalizadorLexico;
 
+import Exceptions.UnclosedCommentException;
+import Exceptions.UnexpectedChar;
+import Exceptions.UnopenedCommentException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -22,20 +25,16 @@ public class AnalizadorLexico {
     private Token ultimoTokenGenerado;
     private int numLinea = 1;
 
-    public AnalizadorLexico(String nombreArchivo) {
+    public AnalizadorLexico(String nombreArchivo) throws FileNotFoundException {
 
-        try {
-            this.reader = new BufferedReader(new FileReader(nombreArchivo)); // Abre el archivo de lectura
-        } catch (FileNotFoundException exception) {
-            System.out.println("Archivo '" + nombreArchivo + "' no encontrado");
-        }
+        this.reader = new BufferedReader(new FileReader(nombreArchivo)); // Abre el archivo de lectura
 
         this.cargarPalabrasReservadas();
         this.caracterActual = -2;
         this.ultimoTokenGenerado = null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnclosedCommentException, UnexpectedChar {
         if (args.length != 1) {
             System.out.println("Cantidad de argumentos incorrecta");
         } else {
@@ -53,26 +52,25 @@ public class AnalizadorLexico {
                             case '<':
                                 lexico.reader.mark(1);
                                 lexico.caracterActual = lexico.leerCaracter();
-                            switch (lexico.caracterActual) {
-                                case '=':
-                                    cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
-                                    lexico.fileWriter.write(cadenaAux);
-                                    lexico.caracterActual = -2;
-                                    break;
-                                case '>':
-                                    cadenaAux = "<tk_op_relacional , op_distinto> \n";
-                                    lexico.fileWriter.write(cadenaAux);
-                                    lexico.caracterActual = -2;
-                                    break;
-                                default:
-                                    cadenaAux = "<tk_op_relacional , op_menor> \n";
-                                    lexico.fileWriter.write(cadenaAux);
-                                    lexico.caracterActual = -2;
-                                    lexico.reader.reset();
-                                    break;
-                            }
+                                switch (lexico.caracterActual) {
+                                    case '=':
+                                        cadenaAux = "<tk_op_relacional , op_menor_igual> \n";
+                                        lexico.fileWriter.write(cadenaAux);
+                                        lexico.caracterActual = -2;
+                                        break;
+                                    case '>':
+                                        cadenaAux = "<tk_op_relacional , op_distinto> \n";
+                                        lexico.fileWriter.write(cadenaAux);
+                                        lexico.caracterActual = -2;
+                                        break;
+                                    default:
+                                        cadenaAux = "<tk_op_relacional , op_menor> \n";
+                                        lexico.fileWriter.write(cadenaAux);
+                                        lexico.caracterActual = -2;
+                                        lexico.reader.reset();
+                                        break;
+                                }
                                 break;
-
 
                             case '=':
                                 cadenaAux = "<tk_op_relacional , op_igual> \n";
@@ -204,7 +202,7 @@ public class AnalizadorLexico {
 
                             default:
                                 if (lexico.caracterActual == '{') {
-                                    try {
+                                    /*try {
                                         lexico.leerComentario();
                                         lexico.caracterActual = -2;
                                     } catch (Exception e) { // Si hubo una excepcion leyendo el comentario (eof o un '@')
@@ -212,7 +210,9 @@ public class AnalizadorLexico {
                                         lexico.caracterActual = -1;
                                         lexico.fileWriter.close();
                                         lexico.reader.close();
-                                    }
+                                    }*/
+                                    lexico.leerComentario();
+                                    lexico.caracterActual = -2;
                                 } else { // ID y Numero
                                     if ((lexico.caracterActual >= 'A' && lexico.caracterActual <= 'Z')
                                             || (lexico.caracterActual >= 'a' && lexico.caracterActual <= 'z')) { // Si es una letra
@@ -261,7 +261,7 @@ public class AnalizadorLexico {
 
     }
 
-    public Token obtenerToken() {
+    public Token obtenerToken() throws UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         try {
             while (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
                 caracterActual = leerCaracter();
@@ -436,7 +436,7 @@ public class AnalizadorLexico {
 
                     default:
                         if (caracterActual == '{') {
-                            try {
+                            /*try {
                                 leerComentario();
                                 caracterActual = -2;
                             } catch (Exception e) { // Si hubo una excepcion leyendo el comentario (eof o un '@')
@@ -444,7 +444,9 @@ public class AnalizadorLexico {
                                 caracterActual = -1;
                                 // fileWriter.close();
                                 reader.close();
-                            }
+                            }*/
+                            leerComentario();
+                            caracterActual = -2;
                         } else { // ID y Numero
                             if ((caracterActual >= 'A' && caracterActual <= 'Z')
                                     || (caracterActual >= 'a' && caracterActual <= 'z')) { // Si es una letra
@@ -471,16 +473,21 @@ public class AnalizadorLexico {
                                     this.ultimoTokenGenerado = new Token("tk_numero", numero);
                                     caracterActual = -1;
                                     reader.reset(); // Ir a metodo leerID/leerNum para explicacion de esto
-                                } else { // Probablemente un caracter invalido
-                                    String cadenaAux = "Linea " + numLinea + ": <Error: caracter \""
+                                } else {
+                                    if (caracterActual == '}') {
+                                        throw new UnopenedCommentException(numLinea);
+                                    }
+                                    // Probablemente un caracter invalido
+                                    /*String cadenaAux = "Linea " + numLinea + ": <Error: caracter \""
                                             + (char) caracterActual + "\" no valido> \n";
                                     // fileWriter.write(cadenaAux);
                                     try {
                                         throw new Exception(cadenaAux);
                                     } catch (Exception e) {
                                         System.out.print(e.getMessage());
-                                    }
+                                    }*/
                                     caracterActual = -1;
+                                    throw new UnexpectedChar((char) caracterActual, numLinea);
                                 }
                             }
                         }
@@ -580,7 +587,7 @@ public class AnalizadorLexico {
         return constructorID.toString();
     }
 
-    private void leerComentario() throws Exception {
+    private void leerComentario() throws UnclosedCommentException, UnexpectedChar {
 
         caracterActual = leerCaracter();
         int lineaComienzoComentario = numLinea;
@@ -592,13 +599,14 @@ public class AnalizadorLexico {
             // Error: No se cerro el comentario
 
             // fileWriter.write("Linea " + lineaComienzoComentario + ": <Error: Comentario no fue cerrado> \n");
-            throw new Exception("Linea " + lineaComienzoComentario + ": <Error: Comentario no fue cerrado>");
+            // throw new Exception("Linea " + lineaComienzoComentario + ": <Error: Comentario no fue cerrado>");
+            throw new UnclosedCommentException(numLinea);
         } else if (caracterActual == '@') {
             // Error: Caracter no valido en los comentarios
             // fileWriter.write("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual
             //        + "\" no valido en los comentarios> \n");
-            throw new Exception("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual
-                    + "\" no valido en los comentarios>");
+            // throw new Exception("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios>");
+            throw new UnexpectedChar((char) caracterActual, numLinea);
         }
     }
 

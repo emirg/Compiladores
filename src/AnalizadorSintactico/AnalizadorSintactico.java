@@ -3,7 +3,10 @@ package AnalizadorSintactico;
 import AnalizadorLexico.Token;
 import AnalizadorLexico.AnalizadorLexico;
 import AnalizadorSemantico.TablaSimbolo;
+import Exceptions.UnclosedCommentException;
+import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
+import Exceptions.UnopenedCommentException;
 import java.util.Stack;
 
 public class AnalizadorSintactico {
@@ -18,7 +21,7 @@ public class AnalizadorSintactico {
         this.tablasSimbolo = new Stack();
     }
 
-    public boolean match(Token t) throws UnexpectedToken {
+    public boolean match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         boolean tokenMatched = ultimoToken.equals(t);
         System.out.println("parametro    :" + t.getNombreToken());
         System.out.println("ultimo token :" + ultimoToken.getNombreToken());
@@ -43,7 +46,7 @@ public class AnalizadorSintactico {
         return tokenMatched;
     }
 
-    public void program() throws UnexpectedToken {
+    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
         match(new Token("tk_id"));
@@ -72,7 +75,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_punto"));
     }
 
-    public void bloque() throws UnexpectedToken {
+    public void bloque() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_begin"))) {
             sentenciaCompuesta();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
@@ -92,7 +95,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void sentencia() throws UnexpectedToken {
+    public void sentencia() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
@@ -134,13 +137,13 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void asignacion() throws UnexpectedToken {
+    public void asignacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         //match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         expresion();
     }
 
-    public void funcion() throws UnexpectedToken {
+    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_function"));
         match(new Token("tk_id"));
         /* los parenteisis son condicionales? o solo los parametros internos  */
@@ -166,7 +169,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento() throws UnexpectedToken {
+    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_procedure"));
         match(new Token("tk_id"));
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
@@ -190,7 +193,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void variables() throws UnexpectedToken {
+    public void variables() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_var"))) {
             match(new Token("tk_var"));
             do {
@@ -201,13 +204,13 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void params() throws UnexpectedToken {
+    public void params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         while (ultimoToken.equals(new Token("tk_id"))) {
             listaIdentificadores();
         }
     }
 
-    public void listaIdentificadores() throws UnexpectedToken {
+    public void listaIdentificadores() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_id"));
         while (ultimoToken.equals(new Token("tk_coma"))) {
             match(new Token("tk_coma"));
@@ -217,7 +220,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_tipo"));
     }
 
-    public void alternativa() throws UnexpectedToken {
+    public void alternativa() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_if"));
         expresion();
         match(new Token("tk_then"));
@@ -225,21 +228,21 @@ public class AnalizadorSintactico {
         alternativaAux();
     }
 
-    public void alternativaAux() throws UnexpectedToken {
+    public void alternativaAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
             bloque();
         }
     }
 
-    public void repetitiva() throws UnexpectedToken {
+    public void repetitiva() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_while"));
         expresion();
         match(new Token("tk_do"));
         bloque();
     }
 
-    public void llamadaSub() throws UnexpectedToken {
+    public void llamadaSub() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         //match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
@@ -252,21 +255,21 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void leer() throws UnexpectedToken {
+    public void leer() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_read"));
         match(new Token("tk_parentesis_izq"));
         match(new Token("tk_id"));
         match(new Token("tk_parentesis_der"));
     }
 
-    public void escribir() throws UnexpectedToken {
+    public void escribir() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_write"));
         match(new Token("tk_parentesis_izq"));
         match(new Token("tk_id"));
         match(new Token("tk_parentesis_der"));
     }
 
-    public void sentenciaCompuesta() throws UnexpectedToken {
+    public void sentenciaCompuesta() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_begin"));
         bloque();
         /* modificacion reciente de la gramatica*/
@@ -276,12 +279,12 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
     }
 
-    public void expresion() throws UnexpectedToken {
+    public void expresion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         expresion_1();
         expresionAux();
     }
 
-    public void expresionAux() throws UnexpectedToken {
+    public void expresionAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_or"))) {
             match(new Token("tk_op_or"));
             expresion_1();
@@ -289,12 +292,12 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void expresion_1() throws UnexpectedToken {
+    public void expresion_1() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         expresion_2();
         expresion_1_aux();
     }
 
-    public void expresion_1_aux() throws UnexpectedToken {
+    public void expresion_1_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_and"))) {
             match(new Token("tk_op_and"));
             expresion_2();
@@ -302,19 +305,19 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void expresion_2() throws UnexpectedToken {
+    public void expresion_2() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_not"))) {
             match(new Token("tk_op_not"));
         }
         expresion_3();
     }
 
-    public void expresion_3() throws UnexpectedToken {
+    public void expresion_3() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         expresion_4();
         expresion_3_aux();
     }
 
-    public void expresion_3_aux() throws UnexpectedToken {
+    public void expresion_3_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_relacional"))) {
             operador_comparacion();
             expresion_4();
@@ -322,12 +325,12 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void expresion_4() throws UnexpectedToken {
+    public void expresion_4() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         expresion_5();
         expresion_4_aux();
     }
 
-    public void expresion_4_aux() throws UnexpectedToken {
+    public void expresion_4_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
             expresion_5();
@@ -341,12 +344,12 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void expresion_5() throws UnexpectedToken {
+    public void expresion_5() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         expresion_6();
         expresion_5_aux();
     }
 
-    public void expresion_5_aux() throws UnexpectedToken {
+    public void expresion_5_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_mult"))) {
             match(new Token("tk_op_mult"));
             expresion_6();
@@ -360,7 +363,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void expresion_6() throws UnexpectedToken {
+    public void expresion_6() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
             factor();
@@ -374,7 +377,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void operador_comparacion() throws UnexpectedToken {
+    public void operador_comparacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         switch (ultimoToken.getAtributoToken()) {
             case "op_igual":
                 match(new Token("tk_op_relacional", "op_igual"));
@@ -411,7 +414,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void factor() throws UnexpectedToken {
+    public void factor() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
             case "tk_id":
