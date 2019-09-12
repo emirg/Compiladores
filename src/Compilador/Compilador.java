@@ -19,11 +19,13 @@ public class Compilador {
             lexico = new AnalizadorLexico("/home/emiliano/Programacion/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
             AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico);
             sintactico.program();
+            System.out.println("Compilation successful");
         } catch (FileNotFoundException ex) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
         } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException e) {
             System.err.println(e.getMessage());
+            System.err.println("Compilation failed");
         }
 
     }
