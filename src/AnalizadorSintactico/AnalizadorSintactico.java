@@ -205,7 +205,18 @@ public class AnalizadorSintactico {
     }
 
     public void params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
-        while (ultimoToken.equals(new Token("tk_id"))) {
+        /*while (ultimoToken.equals(new Token("tk_id"))) {
+            listaIdentificadores();
+        }*/
+        if (ultimoToken.equals(new Token("tk_id"))) {
+            listaIdentificadores();
+            paramsAux();
+        }
+    }
+
+    public void paramsAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+        while (ultimoToken.equals(new Token("tk_puntocoma"))) {
+            match(new Token("tk_puntocoma"));
             listaIdentificadores();
         }
     }
