@@ -9,11 +9,12 @@ package Exceptions;
  *
  * @author emiliano
  */
-public class SyntacticException extends Exception {
+public class SyntaxException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public SyntacticException(String message, int numLine) {
-        super("Syntactic - " + message + " at line " + numLine);
+    public SyntaxException(String message, int numLine) {
+        super("Syntax - " + message + " at line " + numLine);
+        
     }
 }

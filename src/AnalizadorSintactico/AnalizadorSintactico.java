@@ -7,18 +7,21 @@ import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
 import Exceptions.UnopenedCommentException;
+import java.util.HashMap;
 import java.util.Stack;
 
 public class AnalizadorSintactico {
 
     private final AnalizadorLexico lexico;
     private Stack<TablaSimbolo> tablasSimbolo;
+    private HashMap<String, String> tablaNombresTokens;
     private Token ultimoToken;
 
     public AnalizadorSintactico(AnalizadorLexico lexico) {
         this.lexico = lexico;
         this.ultimoToken = null;
         this.tablasSimbolo = new Stack();
+        this.cargarNombresTokens();
     }
 
     public boolean match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
@@ -41,7 +44,7 @@ public class AnalizadorSintactico {
                 tokenEncontrado = ultimoToken.getNombreToken();
             }
 
-            throw new UnexpectedToken(tokenEsperado, tokenEncontrado, lexico.obtenerNumeroLinea());
+            throw new UnexpectedToken(this.tablaNombresTokens.getOrDefault(tokenEsperado, tokenEsperado), this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
         return tokenMatched;
     }
@@ -133,7 +136,7 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("Sentencia", tokenEncontrado, lexico.obtenerNumeroLinea());
+                throw new UnexpectedToken("sentence", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
     }
 
@@ -420,7 +423,7 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("Operador comparación", tokenEncontrado, lexico.obtenerNumeroLinea());
+                throw new UnexpectedToken("comparison operator", tokenEncontrado, lexico.obtenerNumeroLinea());
 
         }
     }
@@ -451,8 +454,55 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("factor", tokenEncontrado, lexico.obtenerNumeroLinea());
+                throw new UnexpectedToken("factor", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
+    }
+
+    private void cargarNombresTokens() {
+        this.tablaNombresTokens = new HashMap();
+
+        // Palabras reservadas
+        tablaNombresTokens.put("tk_op_and", "and");
+        tablaNombresTokens.put("tk_op_or", "or");
+        tablaNombresTokens.put("tk_op_not", "not");
+        tablaNombresTokens.put("tk_program", "program");
+        tablaNombresTokens.put("tk_begin", "begin");
+        tablaNombresTokens.put("tk_end", "end");
+        tablaNombresTokens.put("tk_function", "function");
+        tablaNombresTokens.put("tk_procedure", "procedure");
+        tablaNombresTokens.put("tk_var", "var");
+        tablaNombresTokens.put("tk_if", "if");
+        tablaNombresTokens.put("tk_then", "then");
+        tablaNombresTokens.put("tk_else", "else");
+        tablaNombresTokens.put("tk_while", "while");
+        tablaNombresTokens.put("tk_do", "do");
+        tablaNombresTokens.put("tk_read", "read");
+        tablaNombresTokens.put("tk_write", "write");
+        tablaNombresTokens.put("tipo_boolean", "boolean");
+        tablaNombresTokens.put("tipo_integer", "integer");
+        tablaNombresTokens.put("valor_true", "true");
+        tablaNombresTokens.put("valor_false", "false");
+
+        // Resto de tokens
+        tablaNombresTokens.put("tk_coma", ",");
+        tablaNombresTokens.put("tk_puntocoma", ";");
+        tablaNombresTokens.put("tk_dospuntos", ":");
+        tablaNombresTokens.put("tk_puntocoma", ";");
+        tablaNombresTokens.put("tk_asignacion", ":=");
+        tablaNombresTokens.put("tk_punto", ".");
+        tablaNombresTokens.put("tk_parentesis_izq", "(");
+        tablaNombresTokens.put("tk_parentesis_der", ")");
+        tablaNombresTokens.put("tk_op_resta", "-");
+        tablaNombresTokens.put("tk_op_suma", "+");
+        tablaNombresTokens.put("tk_op_mult", "*");
+        tablaNombresTokens.put("tk_op_div", "/");
+        tablaNombresTokens.put("op_mayor", ">");
+        tablaNombresTokens.put("op_mayor_igual", ">=");
+        tablaNombresTokens.put("op_menor_igual", "<=");
+        tablaNombresTokens.put("op_menor", "<");
+        tablaNombresTokens.put("op_distinto", "<>");
+        tablaNombresTokens.put("op_igual", "=");
+        tablaNombresTokens.put("tk_id", "identifier");
     }
 
 }
