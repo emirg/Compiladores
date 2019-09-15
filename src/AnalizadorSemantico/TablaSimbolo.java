@@ -1,24 +1,25 @@
 package AnalizadorSemantico;
 
+import AnalizadorSemantico.ElementosTS.Fila;
 import java.util.HashMap;
 
 public class TablaSimbolo {
     
-    private HashMap<String, String> simbolos;
+    private HashMap<String, Fila> simbolos;
     
     public TablaSimbolo(){
         simbolos = new HashMap();
     }
     
-    public void agregarSimbolo(String key, String value){
+    public void agregarSimbolo(String key, Fila value){
         simbolos.put(key, value);
     }
     
-    public String obtenerSimbolo(String key){
+    public Fila obtenerSimbolo(String key){
         return simbolos.get(key);
     }
     
-    public void cambiarSimbolo(String key, String value){
+    public void cambiarSimbolo(String key, Fila value){
         simbolos.replace(key, value);
     }
     

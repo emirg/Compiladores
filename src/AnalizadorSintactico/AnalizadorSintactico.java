@@ -279,7 +279,7 @@ public class AnalizadorSintactico {
     public void escribir() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_write"));
         match(new Token("tk_parentesis_izq"));
-        match(new Token("tk_id"));
+        match(new Token("tk_id")); // TODO: Agregar las modificaciones hechas en la gramática
         match(new Token("tk_parentesis_der"));
     }
 
