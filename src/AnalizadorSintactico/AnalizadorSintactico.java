@@ -16,19 +16,26 @@ public class AnalizadorSintactico {
     private Stack<TablaSimbolo> tablasSimbolo;
     private HashMap<String, String> tablaNombresTokens;
     private Token ultimoToken;
+    private final boolean debugging;
 
-    public AnalizadorSintactico(AnalizadorLexico lexico) {
+    public AnalizadorSintactico(AnalizadorLexico lexico, boolean debugging) {
         this.lexico = lexico;
         this.ultimoToken = null;
         this.tablasSimbolo = new Stack();
+        this.debugging = debugging;
+        this.tablaNombresTokens = new HashMap();
         this.cargarNombresTokens();
     }
 
     public boolean match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         boolean tokenMatched = ultimoToken.equals(t);
-        System.out.println("parametro    :" + t.getNombreToken());
-        System.out.println("ultimo token :" + ultimoToken.getNombreToken());
-        System.out.println(tokenMatched);
+
+        if (debugging) {
+            System.out.println("parametro    :" + t.getNombreToken());
+            System.out.println("ultimo token :" + ultimoToken.getNombreToken());
+            System.out.println(tokenMatched);
+        }
+
         if (tokenMatched) {
             this.ultimoToken = lexico.obtenerToken();
             //System.out.println(ultimoToken.getNombreToken());
@@ -459,8 +466,6 @@ public class AnalizadorSintactico {
     }
 
     private void cargarNombresTokens() {
-        this.tablaNombresTokens = new HashMap();
-
         // Palabras reservadas
         tablaNombresTokens.put("tk_op_and", "and");
         tablaNombresTokens.put("tk_op_or", "or");

@@ -16,8 +16,8 @@ public class Compilador {
 
         AnalizadorLexico lexico;
         try {
-            lexico = new AnalizadorLexico("/home/emiliano/Programacion/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
-            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico);
+            lexico = new AnalizadorLexico("/home/emiliano/Git/Facultad/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
+            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico,false);
             sintactico.program();
             System.out.println("Compilation successful");
         } catch (FileNotFoundException ex) {
