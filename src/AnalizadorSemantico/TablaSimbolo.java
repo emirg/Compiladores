@@ -1,6 +1,8 @@
 package AnalizadorSemantico;
 
 import AnalizadorSemantico.ElementosTS.Fila;
+import AnalizadorSemantico.ElementosTS.FilaVariable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TablaSimbolo {
@@ -13,6 +15,12 @@ public class TablaSimbolo {
     
     public void agregarSimbolo(String key, Fila value){
         simbolos.put(key, value);
+    }
+    
+    public void agregarColeccionSimbolos(ArrayList<FilaVariable> identificadores){
+        identificadores.forEach((identificador) -> {
+            simbolos.put(identificador.getNombre(),identificador);
+        });
     }
     
     public Fila obtenerSimbolo(String key){

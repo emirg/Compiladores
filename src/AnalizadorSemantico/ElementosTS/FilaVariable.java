@@ -13,7 +13,7 @@ public class FilaVariable extends Fila{
     
     private String tipo; // Integer o Boolean
 
-    public FilaVariable(String tipo, String tipoConstructor, String nombre, int lineaDeclaracion) {
+    public FilaVariable(String tipoConstructor, String nombre, int lineaDeclaracion, String tipo) {
         super(tipoConstructor, nombre, lineaDeclaracion);
         this.tipo = tipo;
     }

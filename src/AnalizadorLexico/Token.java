@@ -1,49 +1,51 @@
 package AnalizadorLexico;
 
-public class Token{
+public class Token {
 
     private String nombreToken;
     private String atributoToken;
 
-    public Token(){
+    public Token() {
         this.nombreToken = "";
         this.atributoToken = "";
     }
 
-    public Token(String nombreToken){
+    public Token(String nombreToken) {
         this.nombreToken = nombreToken;
         this.atributoToken = "";
     }
 
-    public Token(String nombreToken, String atributoToken){
+    public Token(String nombreToken, String atributoToken) {
         this.nombreToken = nombreToken;
         this.atributoToken = atributoToken;
     }
 
-    public String getNombreToken(){
+    public String getNombreToken() {
         return nombreToken;
     }
 
-    public String getAtributoToken(){
+    public String getAtributoToken() {
         return atributoToken;
     }
 
-    public void setNombreToken(String nombreToken){
+    public void setNombreToken(String nombreToken) {
         this.nombreToken = nombreToken;
     }
 
-    public void setAtributoToken(String atributoToken){
+    public void setAtributoToken(String atributoToken) {
         this.atributoToken = atributoToken;
     }
 
-    public boolean equals(Token t){
+    public boolean equals(Token t) {
         return t.getNombreToken().equalsIgnoreCase(nombreToken); //&& t.getAtributoToken().equalsIgnoreCase(atributoToken);
     }
 
-    public String toString(){
-        return "<" + nombreToken + " , " + atributoToken + ">";
+    public Token clone() {
+        return new Token(this.nombreToken, this.atributoToken);
     }
 
-    
+    public String toString() {
+        return "<" + nombreToken + " , " + atributoToken + ">";
+    }
 
 }

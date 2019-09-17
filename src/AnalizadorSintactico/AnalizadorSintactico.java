@@ -2,11 +2,14 @@ package AnalizadorSintactico;
 
 import AnalizadorLexico.Token;
 import AnalizadorLexico.AnalizadorLexico;
+import AnalizadorSemantico.ElementosTS.Fila;
+import AnalizadorSemantico.ElementosTS.FilaVariable;
 import AnalizadorSemantico.TablaSimbolo;
 import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
 import Exceptions.UnopenedCommentException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -14,9 +17,9 @@ public class AnalizadorSintactico {
 
     private final AnalizadorLexico lexico;
     private Stack<TablaSimbolo> tablasSimbolo;
-    private HashMap<String, String> tablaNombresTokens;
+    private HashMap<String, String> tablaNombresTokens; // Utilizado para los mensajes de errores
     private Token ultimoToken;
-    private final boolean debugging;
+    private final boolean debugging; // Utilizada para mostrar mensajes de debugging
 
     public AnalizadorSintactico(AnalizadorLexico lexico, boolean debugging) {
         this.lexico = lexico;
@@ -27,16 +30,17 @@ public class AnalizadorSintactico {
         this.cargarNombresTokens();
     }
 
-    public boolean match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
-        boolean tokenMatched = ultimoToken.equals(t);
+    public Token match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+        boolean hasMatched = ultimoToken.equals(t);
+        Token tokenMatched = ultimoToken.clone();
 
         if (debugging) {
             System.out.println("parametro    :" + t.getNombreToken());
             System.out.println("ultimo token :" + ultimoToken.getNombreToken());
-            System.out.println(tokenMatched);
+            System.out.println(hasMatched);
         }
 
-        if (tokenMatched) {
+        if (hasMatched) {
             this.ultimoToken = lexico.obtenerToken();
             //System.out.println(ultimoToken.getNombreToken());
         } else {
@@ -59,7 +63,16 @@ public class AnalizadorSintactico {
     public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
-        match(new Token("tk_id"));
+
+        // Inicializa la tabla de simbolos inicial
+        this.tablasSimbolo.add(new TablaSimbolo());
+
+        // Guarda el nombre del programa (identificador)
+        Token nuevoIdentificador = match(new Token("tk_id"));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevoIdentificador.getAtributoToken(), new Fila("program", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea()));
+
+        // this.tablasSimbolo.peek().agregarSimbolo("test", new Fila("test", "test", lexico.obtenerNumeroLinea()));
+
         match(new Token("tk_puntocoma"));
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
@@ -232,13 +245,27 @@ public class AnalizadorSintactico {
     }
 
     public void listaIdentificadores() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
-        match(new Token("tk_id"));
+        ArrayList<FilaVariable> nuevosIdentificadores = new ArrayList();
+        Token nuevoIdentificador = match(new Token("tk_id"));
+
+        if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken())) {
+            nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), ""));
+        }
+
         while (ultimoToken.equals(new Token("tk_coma"))) {
             match(new Token("tk_coma"));
-            match(new Token("tk_id"));
+            nuevoIdentificador = match(new Token("tk_id"));
+            if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken())) {
+                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), ""));
+            }
+
         }
         match(new Token("tk_dospuntos"));
-        match(new Token("tk_tipo"));
+        Token tipo = match(new Token("tk_tipo"));
+        for (FilaVariable identificador : nuevosIdentificadores) {
+            identificador.setTipo(tipo.getAtributoToken());
+        }
+        this.tablasSimbolo.peek().agregarColeccionSimbolos(nuevosIdentificadores);
     }
 
     public void alternativa() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
