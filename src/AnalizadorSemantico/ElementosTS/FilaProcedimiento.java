@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class FilaProcedimiento extends Fila {
 
-    private ArrayList listaParametros;
+    private ArrayList<String> listaParametros;
 
-    public FilaProcedimiento(ArrayList listaParametros, String tipoConstructor, String nombre, int lineaDeclaracion) {
+    public FilaProcedimiento(String tipoConstructor, String nombre, int lineaDeclaracion, ArrayList listaParametros) {
         super(tipoConstructor, nombre, lineaDeclaracion);
         this.listaParametros = listaParametros;
     }

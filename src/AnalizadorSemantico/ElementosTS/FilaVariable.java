@@ -9,13 +9,15 @@ package AnalizadorSemantico.ElementosTS;
  *
  * @author emiliano
  */
-public class FilaVariable extends Fila{
-    
-    private String tipo; // Integer o Boolean
+public class FilaVariable extends Fila {
 
-    public FilaVariable(String tipoConstructor, String nombre, int lineaDeclaracion, String tipo) {
+    private String tipo; // Integer o Boolean
+    private boolean esParametro;
+
+    public FilaVariable(String tipoConstructor, String nombre, int lineaDeclaracion, String tipo, boolean esParametro) {
         super(tipoConstructor, nombre, lineaDeclaracion);
         this.tipo = tipo;
+        this.esParametro = esParametro;
     }
 
     public String getTipo() {
@@ -25,6 +27,13 @@ public class FilaVariable extends Fila{
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
-    
-    
+
+    public boolean esParametro() {
+        return esParametro;
+    }
+
+    public void setEsParametro(boolean esParametro) {
+        this.esParametro = esParametro;
+    }
+
 }

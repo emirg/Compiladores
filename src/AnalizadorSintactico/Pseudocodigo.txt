@@ -1,262 +1,351 @@
-void programa(){
-	match('program');
-	identificador();
-	match(';');
-	variables(); 
-	while(!match('begin')){
-		funcion();
-		procedimiento();
-	}
-	bloque();
-	while(!match('end')){
-		match(';');
-		bloque();
-	}
-	match('.');
-}				
+void programa() {
+    ultimoToken = lexico.obtenerToken(); // Devuelve el ultimo token
+    match(tk_program); 
+    match(tk_id);
+    match(tk_puntocoma);
+    if (ultimoToken == tk_var) {
+        variables();
+    }
+    while (ultimoToken == tk_function || ultimoToken == tk_procedure) {
+        if (ultimoToken ==  tk_function) {
+            funcion();
+        } else {
+            procedimiento();
+        }
+    }
+    match(tk_begin);
+    bloque();
+    while (ultimoToken == tk_puntocoma) {
+    	match(tk_puntocoma);
+    	bloque();
+    }
+    if (ultimoToken == tk_puntocoma) {
+        match(tk_puntocoma);
+    }
+    match(tk_end);
+    match(tk_punto);
+}			
 
 void bloque(){
-	sentencia();
-	while(match(';')){
-		bloque();
-	}
-
-	sentenciaCompuesta();
-		while(match(';')){
-		bloque();
-	}
+    if (ultimoToken == tk_begin){
+        sentenciaCompuesta();
+        while (ultimoToken == tk_puntocoma) {
+            match(tk_puntocoma);
+            if (ultimoToken != tk_end) {
+    	        bloque();
+            }
+        }
+    } else {
+        sentencia();
+    	while (ultimoToken == tk_puntocoma) {
+            match(tk_puntocoma);
+            if (ultimoToken != tk_end) {
+                bloque();
+            }
+        }
+    }
 }
 
 void sentencia(){
-	asignacion();
-	alternativa();
-	repetitiva();
-	leer();
-	escribir();
-	llamada_sub();
+    switch (ultimoToken) {
+        case tk_id:
+            match(tk_id);
+            if (ultimoToken == tk_asignacion) {
+                asignacion();
+            } else {
+                llamadaSub();
+            }
+    	case tk_if:
+    	    alternativa();
+    	case tk_while:
+    	    repetitiva();
+    	case tk_read:
+    	    leer();
+    	case tk_write:
+    	    escribir();
+    	default
+    	    Error token no esperado
+    }
 }
 
 void asignacion(){
-	identificador();
-	match(':=');
+	match(tk_asignacion);
 	expresion();
 }
 
 void funcion(){
-	match('function');
-	identificador();
-	if(match('(')){
-		params();
-		match(')');
-	}
-	match(':');
-	tipo();
-	match(';');
-	variables();
-	while(token != 'begin'){
-		function();
-		procedure();
-	}
-	sentenciaCompuesta();
+    match(tk_function);
+    match(tk_id);
+    if (ultimoToken == tk_parentesis_izq) {
+        match(tk_parentesis_izq);
+        params();
+        match(tk_parentesis_der);
+    }
+    match(tk_dospuntos);
+    match(tk_tipo);
+    match(tk_puntocoma);
+    if (ultimoToken == tk_var) {
+        variables();
+    }
+    while (ultimoToken == tk_function || ultimoToken == tk_procedimiento) {
+        if (ultimoToken == tk_function) {
+            funcion();
+        } else {
+            procedimiento();
+        }
+    }
+    sentenciaCompuesta();
+    match(tk_puntocoma);
 }
 
 void procedimiento(){
-	match('procedure');
-	identificador();
-	if(match('(')){
-		params();
-		match(')');
-	}
-	match(';');
-	variables();
-	while(token != 'begin'){
-		function();
-		procedure();
-	}
-	sentenciaCompuesta();
-}
-
-void identificador(){
-	letra();
-	while(token == id){
-		letra();
-		digito();
-	}
+    match(tk_procedure);
+    match(tk_id);
+    if (ultimoToken == tk_parentesis_izq) {
+	    match(tk_parentesis_izq);
+        params();
+        match(tk_parentesis_der);
+    }
+    match(tk_puntocoma);
+    if (ultimoToken == tk_var) {
+        variables();
+    }
+    while (ultimoToken == tk_function || ultimoToken == tk_procedimiento) {
+        if (ultimoToken == tk_function) {
+            funcion();
+        } else {
+            procedimiento();
+        }
+    }
+    sentenciaCompuesta();
+    match(tk_puntocoma);    
 }
 
 void variables(){
-	while(match('tk_var')){
-		lista_identificadores();
-	}
+    if (ultimoToken == tk_var) {
+        match(tk_var);
+        do {
+            lista_identificadores();
+            match(tk_puntocoma);
+        } while (ultimoToken == tk_id);
+    }
 }
 
 void params(){
-	while(token == 'id'){
-		lista_identificadores();
-	}
+    if (ultimoToken == tk_id) {
+        lista_identificadores();
+        params'();
+    }
+}
+
+params'(){
+    while (ultimoToken == tk_puntocoma) {
+        match(tk_puntocoma);
+        lista_identificadores();
+    }
 }
 
 void lista_identificadores(){
-	identificador();
-	while(match(','){
-		identificador();
-	}
-	match(':');
-	tipo();
-	match(';');
+    match(tk_id);
+    while (ultimoToken == tk_coma) {
+        match(tk_coma);
+        match(tk_id);
+    }
+    match(tk_dospuntos);
+    match(tk_tipo);
 }
 
 void alternativa(){
-	match('if');
-	expresion();
-	match('then');
-	bloque();
-	alternativa'();
+    match(tk_if);
+    expresion();
+    match(tk_then);
+    bloque();
+    alternativa'();
 }
 
 void alternativa'(){
-	if(match('else')){
-		bloque();
-	}
+    if(ultimoToken == tk_else){
+        match(tk_else);
+        bloque();
+    }
 }
 
 void repetitiva(){
-	match('while');
-	expresion();
-	match('do');
-	bloque();
+    match(tk_while);
+    expresion();
+    match(tk_do);
+    bloque();
 }
 
 void llamada_sub(){
-	identificador();
-	if(match('(')){
-		expresion();
-		while(match(',')){
-			expresion();
-		}
-		match(')');
-	}
+    if (ultimoToken == tk_parentesis_izq) {
+        match(tk_parentesis_izq);
+        expresion();
+        while (ultimoToken == tk_coma) {
+            match(tk_coma);
+            expresion();
+        }
+        match(tk_parentesis_der);
+    }
 }
 
 void leer(){
-	match('read');
-	match('(');
-	identificador();
-	match(')');
+    match(tk_read);
+    match(tk_parentesis_izq);
+    match(tk_id);
+    match(tk_parentesis_der);
 }
 
+// TODO: Agregar las modificaciones hechas en la gramatica
 void escribir(){
-	match('write');
-	match('(');
-	identificador();
-	match(')');
+    match('token write');
+    match('token parentesis izq');
+    identificador();
+    match('token parentesis der');
 }
 
 void sentenciaCompuesta(){
-	match('begin');
-	bloque();
-	match('end');
+    match(tk_begin);
+    bloque();
+    if (ultimoToken == tk_puntocoma) {
+        match(tk_puntocoma);
+    }
+    match(tk_end);
 }
 
 void operador_comparacion(){
-	match('=');
-	match('<>');
-	match('>');
-	match('<');
-	match('>=');
-	match('<=');
+    switch (ultimotoken.Atributo) {
+        case op_igual:
+            match(tk_op_relacional, op_igual);
+        case op_distinto:
+            match(tk_op_relacional, op_distinto);
+        case op_mayor:
+            match(tk_op_relacional, op_mayor);
+        case op_menor:
+            match(tk_op_relacional, op_menor);
+        case op_mayor_igual:
+            match(tk_op_relacional, op_mayor_igual);
+        case op_menor_igual:
+            match(tk_op_relacional, op_menor_igual);
+        default:
+            Error token no esperado
+    }
 }
 
 void expresion(){
-	expresion1();
-	expresion'();	
+    expresion1();
+    expresion'();	
 }
 
 void expresion'(){
-	if(match('OR')){
-		expresion1();
-		expresion'();	
-	}
+    if(ultimoToken == tk_op_or){
+        match(tk_op_or);
+        expresion1();
+        expresion'();	
+    }
 }
 
 void expresion1(){
-	expresion2();
-	expresion1'();	
+    expresion2();
+    expresion1'();	
 }
 
 void expresion1'(){
-	if(match('AND')){
-		expresion2();
-		expresion1'();	
+    if(ultimoToken == tk_op_and){
+        match(tk_op_and);
+        expresion2();
+        expresion1'();	
 	}
 }
 
 void expresion2(){
-	match('NOT')
-	expresion3();	
+    if (ultimoToken == tk_not) {
+        match(tk_not)
+    }
+    expresion3();
 }
 
 void expresion3(){
-	expresion4();
-	expresion3'();	
+    expresion4();
+    expresion3'();	
 }
 
 void expresion3'(){
-	if(operador_comparacion()){
-		expresion4();
-		expresion3'();	
-	}
+    if (ultimoToken == tk_op_relacional) {
+        operador_comparacion();
+        expresion4();
+        expresion3'();	
+    }
 }
 
 void expresion4(){
-	expresion5();
-	expresion4'();	
+    expresion5();
+    expresion4'();	
 }
 
 void expresion4'(){
-	if(match('+') || match('-'){
-		expresion5();
-		expresion4'();
-	}
+    if (ultimoToken == tk_op_suma) {
+        match(tk_op_suma);
+        expresion5();
+        expresion4'();
+    } else {
+        if (ultimoToken == tk_op_resta) {
+            match(tk_op_resta);
+            expresion5();
+            expresion4'();
+        }
+    }
 }
 
 void expresion5(){
-	expresion6();
-	expresion5'();	
+    expresion6();
+    expresion5'();	
 }
 
 void expresion5'(){
-	if(match('*') || match('/'){
-		expresion6();
-		expresion5'();
-	}
+    if (ultimoToken == tk_op_mult) {
+        match(tk_op_mult)
+        expresion6();
+        expresion5`();
+    } else {
+        if (ultimoToken == tk_op_div) {
+            match(tk_op_div)
+            expresion6();
+            expresion5`();
+        }
+    }
 }
 
 void expresion6(){
-	(match('-') || match('+'))
-	factor();
+    if (ultimoToken == tk_op_suma) {
+        match(tk_op_suma);
+        factor();
+    } else {
+        if (ultimoToken == tk_op_resta) {
+            match(tk_op_resta);
+            factor();
+        } else {
+            factor();
+        }
+    }
 }
 
 void factor(){
-	if(match('(')){
-		expresion();
-		match(')');
-	}else{
-		id();
-		numero();
-		booleano();
-		llamada_sub();
-	}
-}
-
-void letra(){
-	
-}
-
-void digito(){
-	
-}
-
-void tipo(){
-	
+    switch (ultimoToken) {
+        case tk_id:
+            match(tk_id);
+            if (ultimoToken == tk_parentesis_izq) {
+                llamada_sub();
+            }
+        case tk_numero:
+            match(tk_numero);
+        case tk_boolean:
+            match(tk_boolean)
+        case tk_parentesis_izq:
+            match(tk_parentesis_izq);
+            expresion();
+            match(tk_parentesis_der);
+        default:
+            Error token no esperado
+    }
 }
