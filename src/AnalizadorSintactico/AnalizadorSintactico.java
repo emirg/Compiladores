@@ -201,22 +201,22 @@ public class AnalizadorSintactico {
         // Guarda los datos para agregarlos a la tabla de simbolos
         Token nuevoProcedimiento = match(new Token("tk_id"));
         ArrayList parametros = new ArrayList();
-        
+
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
             parametros.addAll(params());
             match(new Token("tk_parentesis_der"));
         }
-        
+
         // Agrega el procedimiento a la tabla de simbolos junto con sus parametros
         this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros));
-        
+
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
-        
+
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
-        
+
         match(new Token("tk_puntocoma"));
         /* la gramatica dice que es condicional y no lo estaba */
         if (ultimoToken.equals(new Token("tk_var"))) {
@@ -230,7 +230,7 @@ public class AnalizadorSintactico {
             }
         }
         sentenciaCompuesta();
-        
+
         // Se termina el alcance por lo que se saca la tabla de simbolos de la pila
         this.tablasSimbolo.pop();
         match(new Token("tk_puntocoma"));
@@ -265,7 +265,7 @@ public class AnalizadorSintactico {
             match(new Token("tk_puntocoma"));
             nuevosParametros.addAll(listaIdentificadores(true));
         }
-        
+
         return nuevosParametros;
     }
 
@@ -275,8 +275,12 @@ public class AnalizadorSintactico {
 
         if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken())) {
             nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
-        }else{
+        } else if (esParametro) {
+            nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
+
+        } else {
             throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+
         }
 
         while (ultimoToken.equals(new Token("tk_coma"))) {
