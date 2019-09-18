@@ -6,6 +6,7 @@ import AnalizadorSemantico.ElementosTS.Fila;
 import AnalizadorSemantico.ElementosTS.FilaProcedimiento;
 import AnalizadorSemantico.ElementosTS.FilaVariable;
 import AnalizadorSemantico.TablaSimbolo;
+import Exceptions.IdentifierAlreadyDefinedException;
 import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
@@ -63,7 +64,7 @@ public class AnalizadorSintactico {
         return tokenMatched;
     }
 
-    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
 
@@ -168,7 +169,7 @@ public class AnalizadorSintactico {
         expresion();
     }
 
-    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         match(new Token("tk_function"));
         match(new Token("tk_id"));
         /* los parenteisis son condicionales? o solo los parametros internos  */
@@ -194,7 +195,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         match(new Token("tk_procedure"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos
@@ -235,7 +236,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void variables() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void variables() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         if (ultimoToken.equals(new Token("tk_var"))) {
             match(new Token("tk_var"));
             do {
@@ -246,7 +247,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public ArrayList params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public ArrayList params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         /*while (ultimoToken.equals(new Token("tk_id"))) {
             listaIdentificadores();
         }*/
@@ -258,7 +259,7 @@ public class AnalizadorSintactico {
         return nuevosParametros;
     }
 
-    public ArrayList paramsAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public ArrayList paramsAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList nuevosParametros = new ArrayList();
         while (ultimoToken.equals(new Token("tk_puntocoma"))) {
             match(new Token("tk_puntocoma"));
@@ -268,12 +269,14 @@ public class AnalizadorSintactico {
         return nuevosParametros;
     }
 
-    public ArrayList listaIdentificadores(boolean esParametro) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public ArrayList listaIdentificadores(boolean esParametro) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList<FilaVariable> nuevosIdentificadores = new ArrayList();
         Token nuevoIdentificador = match(new Token("tk_id"));
 
         if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken())) {
             nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
+        }else{
+            throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
         }
 
         while (ultimoToken.equals(new Token("tk_coma"))) {

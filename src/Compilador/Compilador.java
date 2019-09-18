@@ -2,6 +2,7 @@ package Compilador;
 
 import AnalizadorSintactico.AnalizadorSintactico;
 import AnalizadorLexico.AnalizadorLexico;
+import Exceptions.IdentifierAlreadyDefinedException;
 import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
@@ -17,13 +18,13 @@ public class Compilador {
         AnalizadorLexico lexico;
         try {
             lexico = new AnalizadorLexico("/home/emiliano/Git/Facultad/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
-            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico,false);
+            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
             sintactico.program();
             System.out.println("Compilation successful");
         } catch (FileNotFoundException ex) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
-        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException e) {
+        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException e) {
             System.err.println(e.getMessage());
             System.err.println("Compilation failed");
         }
