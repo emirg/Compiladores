@@ -3,7 +3,7 @@ package AnalizadorSemantico.ElementosTS;
 public class Fila {
     
     private String tipoConstructor;
-    private String nombre;
+    protected String nombre;
     private int lineaDeclaracion;
 
     public Fila(String tipoConstructor, String nombre, int lineaDeclaracion) {

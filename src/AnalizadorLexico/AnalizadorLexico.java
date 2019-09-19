@@ -23,12 +23,11 @@ public class AnalizadorLexico {
     private FileWriter fileWriter;
     private int caracterActual;
     private Token ultimoTokenGenerado;
-    private int numLinea = 1;
+    private int numLinea = 0;
 
     public AnalizadorLexico(String nombreArchivo) throws FileNotFoundException {
 
         this.reader = new BufferedReader(new FileReader(nombreArchivo)); // Abre el archivo de lectura
-
         this.cargarPalabrasReservadas();
         this.caracterActual = -2;
         this.ultimoTokenGenerado = null;

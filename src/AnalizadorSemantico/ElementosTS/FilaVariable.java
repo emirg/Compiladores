@@ -35,5 +35,11 @@ public class FilaVariable extends Fila {
     public void setEsParametro(boolean esParametro) {
         this.esParametro = esParametro;
     }
+    
+    @Override
+    public boolean equals(Object f){
+       FilaVariable fila= (FilaVariable) f;
+       return (fila.getNombre().equalsIgnoreCase(nombre) );
+    }
 
 }
