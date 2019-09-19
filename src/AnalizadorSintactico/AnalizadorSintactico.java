@@ -3,6 +3,7 @@ package AnalizadorSintactico;
 import AnalizadorLexico.Token;
 import AnalizadorLexico.AnalizadorLexico;
 import AnalizadorSemantico.ElementosTS.Fila;
+import AnalizadorSemantico.ElementosTS.FilaFuncion;
 import AnalizadorSemantico.ElementosTS.FilaProcedimiento;
 import AnalizadorSemantico.ElementosTS.FilaVariable;
 import AnalizadorSemantico.TablaSimbolo;
@@ -100,7 +101,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
         match(new Token("tk_punto"));
     }
-
+ 
     public void bloque() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
         if (ultimoToken.equals(new Token("tk_begin"))) {
             sentenciaCompuesta();
@@ -171,19 +172,34 @@ public class AnalizadorSintactico {
 
     public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         match(new Token("tk_function"));
-        match(new Token("tk_id"));
+        
+        // Guarda los datos para agregarlos a la tabla de simbolos
+        Token nuevaFuncion = match(new Token("tk_id"));
+        ArrayList parametros = new ArrayList();
+        
         /* los parenteisis son condicionales? o solo los parametros internos  */
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
-            params();
+            parametros.addAll(params());
             match(new Token("tk_parentesis_der"));
         }
         match(new Token("tk_dospuntos"));
-        match(new Token("tk_tipo"));
+        Token tipo = match(new Token("tk_tipo"));
         match(new Token("tk_puntocoma"));
+        
+         // Agrega el funcion a la tabla de simbolos junto con sus parametros
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("funcion", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros,tipo.getAtributoToken()));
+        
+        // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
+        this.tablasSimbolo.add(new TablaSimbolo());
+        
+         // Agrega los parametros como identificadores dentro del nuevo alcance
+        this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
+        
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
         }
+        
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
                 funcion();
@@ -192,6 +208,10 @@ public class AnalizadorSintactico {
             }
         }
         sentenciaCompuesta();
+        
+        // Se termina el alcance por lo que se saca la tabla de simbolos de la pila
+        this.tablasSimbolo.pop();
+        
         match(new Token("tk_puntocoma"));
     }
 
@@ -218,7 +238,7 @@ public class AnalizadorSintactico {
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
 
         match(new Token("tk_puntocoma"));
-        /* la gramatica dice que es condicional y no lo estaba */
+        /* la gramatica dice que es condicional y no lo estaba */ 
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
         }
