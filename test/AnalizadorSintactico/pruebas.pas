@@ -8,7 +8,7 @@ Var b:integer;
 begin
   write(a);
   b := 10;
-  algo := b + 1;
+  algo := b + 1; {aca se rompe}
 end;
 
 procedure algo1(a: boolean);
