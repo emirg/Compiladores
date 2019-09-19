@@ -7,7 +7,11 @@ import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
 import Exceptions.UnopenedCommentException;
+import Exceptions.WrongConstructorException;
+import Exceptions.WrongTypeException;
 import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
 
@@ -24,7 +28,7 @@ public class Compilador {
         } catch (FileNotFoundException ex) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
-        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException e) {
+        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException | WrongTypeException | WrongConstructorException e) {
             System.err.println(e.getMessage());
             System.err.println("Compilation failed");
         }
