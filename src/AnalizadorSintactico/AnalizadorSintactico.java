@@ -126,10 +126,10 @@ public class AnalizadorSintactico {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
-                match(new Token("tk_id")); // no respeta la gramatica pero quitarlo complica el if
-                if (ultimoToken.equals(new Token("tk_asignacion"))) {
+                // match(new Token("tk_id")); // no respeta la gramatica pero quitarlo complica el if
+                try {
                     asignacion();
-                } else {
+                } catch (UnexpectedToken e) {
                     llamadaSub();
                 }
                 break;
@@ -165,7 +165,7 @@ public class AnalizadorSintactico {
     }
 
     public void asignacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
-        //match(new Token("tk_id"));
+        match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         expresion();
     }
@@ -268,9 +268,6 @@ public class AnalizadorSintactico {
     }
 
     public ArrayList params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
-        /*while (ultimoToken.equals(new Token("tk_id"))) {
-            listaIdentificadores();
-        }*/
         ArrayList nuevosParametros = new ArrayList();
 
         nuevosParametros.addAll(listaIdentificadores(true));
