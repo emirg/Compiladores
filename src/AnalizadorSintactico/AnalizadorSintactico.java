@@ -215,6 +215,9 @@ public class AnalizadorSintactico {
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
 
+        // Agrega funcion a la nueva tabla para recursividad
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, tipo.getAtributoToken()));
+
         this.tablasSimbolo.peek().agregarSimbolo("retorno", new FilaVariable("var", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), tipo.getAtributoToken(), false));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
@@ -257,6 +260,9 @@ public class AnalizadorSintactico {
 
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
+
+        // Agrega funcion a la nueva tabla para recursividad
+        this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
@@ -370,7 +376,7 @@ public class AnalizadorSintactico {
         bloque();
     }
 
-    public void llamadaSub() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void llamadaSub() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         //match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
@@ -407,7 +413,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
     }
 
-    public String expresion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_1();
         String tipoAux = expresionAux();
         if (!tipoAux.equals("")) {
@@ -416,7 +422,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresionAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresionAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_or"))) {
             match(new Token("tk_op_or"));
@@ -433,7 +439,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_1() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_1() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_2();
         String tipoAux = expresion_1_aux();
         if (!tipoAux.equals("")) {
@@ -443,7 +449,7 @@ public class AnalizadorSintactico {
 
     }
 
-    public String expresion_1_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_1_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_and"))) {
@@ -458,7 +464,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_2() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_2() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_not"))) {
@@ -473,7 +479,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_3() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_4();
         String tipoAux = expresion_3_aux();
         if (!tipoAux.equals("")) {
@@ -482,7 +488,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_3_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_relacional"))) {
             operador_comparacion();
@@ -496,7 +502,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_4() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_5();
         String tipoAux = expresion_4_aux();
         if (!tipoAux.equals("")) {
@@ -505,7 +511,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_4_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
@@ -527,7 +533,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_5() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_6();
         String tipoAux = expresion_5_aux();
         if (!tipoAux.equals("")) {
@@ -536,7 +542,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_5_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_mult"))) {
             match(new Token("tk_op_mult"));
@@ -558,7 +564,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_6() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String expresion_6() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo;
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
@@ -617,7 +623,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public String factor() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public String factor() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = "";
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
@@ -630,12 +636,16 @@ public class AnalizadorSintactico {
                     tipo = fila.getTipoRetorno();
                 } else {
                     Fila fila = tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
-                    if (fila.getTipoConstructor().equalsIgnoreCase("function")) {
-                        tipo = ((FilaFuncion) fila).getTipoRetorno();
-                    } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
-                        tipo = ((FilaVariable) fila).getTipo();
+                    if (fila != null) {
+                        if (fila.getTipoConstructor().equalsIgnoreCase("function")) {
+                            tipo = ((FilaFuncion) fila).getTipoRetorno();
+                        } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
+                            tipo = ((FilaVariable) fila).getTipo();
+                        } else {
+                            throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
+                        }
                     } else {
-                        throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
+                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
                 }
