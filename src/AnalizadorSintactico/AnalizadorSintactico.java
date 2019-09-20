@@ -8,6 +8,7 @@ import AnalizadorSemantico.ElementosTS.FilaProcedimiento;
 import AnalizadorSemantico.ElementosTS.FilaVariable;
 import AnalizadorSemantico.TablaSimbolo;
 import Exceptions.IdentifierAlreadyDefinedException;
+import Exceptions.IdentifierNotDefinedException;
 import Exceptions.UnclosedCommentException;
 import Exceptions.UnexpectedChar;
 import Exceptions.UnexpectedToken;
@@ -67,7 +68,7 @@ public class AnalizadorSintactico {
         return tokenMatched;
     }
 
-    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException {
+    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
 
@@ -104,7 +105,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_punto"));
     }
 
-    public void bloque() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void bloque() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         if (ultimoToken.equals(new Token("tk_begin"))) {
             sentenciaCompuesta();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
@@ -124,7 +125,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void sentencia() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void sentencia() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
@@ -166,19 +167,32 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void asignacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void asignacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         Token identificador = match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         String tipo = expresion();
         Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
-        if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
-            if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
-                throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+        if (simbolo == null) {
+            simbolo = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+            if (simbolo == null) {
+                throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+            } else {
+                if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
+                    if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
+                        throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+                    }
+                }
+            }
+        } else {
+            if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
+                if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
+                    throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+                }
             }
         }
     }
 
-    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException {
+    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         match(new Token("tk_function"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos 
@@ -200,6 +214,8 @@ public class AnalizadorSintactico {
 
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
+
+        this.tablasSimbolo.peek().agregarSimbolo("retorno", new FilaVariable("var", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), tipo.getAtributoToken(), false));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
@@ -223,7 +239,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException {
+    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         match(new Token("tk_procedure"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos
@@ -332,7 +348,7 @@ public class AnalizadorSintactico {
         return nuevosIdentificadores;
     }
 
-    public void alternativa() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void alternativa() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         match(new Token("tk_if"));
         expresion();
         match(new Token("tk_then"));
@@ -340,14 +356,14 @@ public class AnalizadorSintactico {
         alternativaAux();
     }
 
-    public void alternativaAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void alternativaAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
             bloque();
         }
     }
 
-    public void repetitiva() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void repetitiva() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         match(new Token("tk_while"));
         expresion();
         match(new Token("tk_do"));
@@ -381,7 +397,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_parentesis_der"));
     }
 
-    public void sentenciaCompuesta() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException {
+    public void sentenciaCompuesta() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         match(new Token("tk_begin"));
         bloque();
         /* modificacion reciente de la gramatica*/

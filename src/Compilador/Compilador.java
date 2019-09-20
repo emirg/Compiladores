@@ -28,7 +28,7 @@ public class Compilador {
         } catch (FileNotFoundException ex) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
-        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException | WrongTypeException | WrongConstructorException e) {
+        } catch (UnexpectedToken | UnexpectedChar | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException | IdentifierNotDefinedException |WrongTypeException | WrongConstructorException e) {
             System.err.println(e.getMessage());
             System.err.println("Compilation failed");
         }
