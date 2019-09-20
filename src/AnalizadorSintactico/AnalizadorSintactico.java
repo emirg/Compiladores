@@ -172,21 +172,39 @@ public class AnalizadorSintactico {
         match(new Token("tk_asignacion"));
         String tipo = expresion();
         Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
+
+        // este simbolo == null ya no cumple la funcion de anticipar el retorno
+        // ya que se carga la funcion en la TS 
         if (simbolo == null) {
-            simbolo = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
-            if (simbolo == null) {
-                throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
-            } else {
-                if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
-                    if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
-                        throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
-                    }
-                }
-            }
+            //simbolo = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+            //if (simbolo == null || !simbolo.getNombre().equalsIgnoreCase(identificador.getNombreToken())) {
+            throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+            //} else {
+            //if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
+            // if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
+            //   throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+            // }
+            // }
+            // }
         } else {
             if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
                 if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
                     throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+                }
+            } else {
+                Fila simboloRetorno = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+                if (simboloRetorno != null) {
+                    if (simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
+                        if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
+                            throw new WrongTypeException(((FilaVariable) simboloRetorno).getTipo(), lexico.obtenerNumeroLinea());
+                        }
+                    } else {
+                        throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
+                    }
+                } else {
+                    // si en una funcion o procedimiento seria incorrecto asignarle un valor
+                    // se podria plantear otro tipo de excepcion o agregar que se esperaba un var
+                    throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
                 }
             }
         }
@@ -218,6 +236,7 @@ public class AnalizadorSintactico {
         // Agrega funcion a la nueva tabla para recursividad
         this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, tipo.getAtributoToken()));
 
+        // Agrega a la tabla para retorno funcion
         this.tablasSimbolo.peek().agregarSimbolo("retorno", new FilaVariable("var", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), tipo.getAtributoToken(), false));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
@@ -632,8 +651,14 @@ public class AnalizadorSintactico {
 
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     llamadaSub();
+                    //problemas cuando se llama una funcion o precedimiento dentro de otra
                     FilaFuncion fila = (FilaFuncion) tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
-                    tipo = fila.getTipoRetorno();
+                    if (fila != null) {
+                        tipo = fila.getTipoRetorno();
+                    } else {
+                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+                    }
+
                 } else {
                     Fila fila = tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
                     if (fila != null) {
