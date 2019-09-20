@@ -500,9 +500,16 @@ public class AnalizadorSintactico {
 
     public String expresion_3() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
         String tipo = expresion_4();
+        //System.out.println("exp_4 " + tipo);
         String tipoAux = expresion_3_aux();
+        //System.out.println("exp_3AUX " + tipoAux);
         if (!tipoAux.equals("")) {
-            tipo = tipoAux;
+            if (tipo.equalsIgnoreCase(tipoAux)) {
+                //tipo = tipoAux;
+                tipo = "tipo_boolean";
+            } else {
+                throw new WrongTypeException(tipoAux, alcanceActual);
+            }
         }
         return tipo;
     }
@@ -512,11 +519,14 @@ public class AnalizadorSintactico {
         if (ultimoToken.equals(new Token("tk_op_relacional"))) {
             operador_comparacion();
             tipo = expresion_4();
-            if (tipo.equalsIgnoreCase("tipo_boolean")) {
-                throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
-            }
-            expresion_3_aux();
-            tipo = "tipo_boolean";
+            // hacer case para los diferentes op_realaciones
+            //if (tipo.equalsIgnoreCase("tipo_boolean")) {
+            //    throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
+            //}
+ 
+            //tipo = expresion_3_aux();
+            //tipo = "tipo_boolean";
+            //System.out.println("tipo "+tipo);
         }
         return tipo;
     }
