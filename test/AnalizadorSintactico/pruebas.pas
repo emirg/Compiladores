@@ -17,21 +17,28 @@ var b:boolean;
     c:integer;
 begin
   b:=true;
-  c:=2;
+  {c:= algo(b);}
   m:= b <> b; {permite op_comp entre dos int o dos boolean}
 end;
 
 
-procedure algo1(a: boolean);
+procedure algo1(f: boolean);
 
 begin
-  write ( a );
+  write ( f );
+end;
+
+procedure sinParametro;
+begin
+  write(hola);
 end;
 
 
  begin
+   algo1(true);
+   sinParametro;
    {m := 2;} {detecta que m es una funcion y larga excepcion constructor erroneo}
-   a :=algo(a,b); { no detecta que la cantidad de parametros es erronea , fuera de que no estan inicializadas }
+   a := algo(d,a); { no detecta que la cantidad de parametros es erronea , fuera de que no estan inicializadas }
    c := 4;
    b := 3;
    d:= 3+b>6 OR (2<>2) AND 4<c ;

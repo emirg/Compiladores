@@ -130,11 +130,43 @@ public class AnalizadorSintactico {
             // Asignacion y llamada a subprograma
             case "tk_id":
                 // match(new Token("tk_id")); // no respeta la gramatica pero quitarlo complica el if
-                try {
-                    asignacion();
-                } catch (UnexpectedToken e) {
-                    llamadaSub();
+                // el control con respecto a los parametros se debe hacer aca porque pierdo el nombre de 
+                // la funcion o procedemiento
+                //System.out.println("ultimo token " + ultimoToken.getAtributoToken());
+                Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                if (simbolo != null) {
+                    System.out.println("simbolo " + simbolo.getTipoConstructor());
+                    if (simbolo.getTipoConstructor().equalsIgnoreCase("function")) {
+                        Fila simboloRetorno = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+
+                        if (simboloRetorno != null && simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
+                            //System.out.println("simbolo retorno " + simboloRetorno.getNombre());
+                            //System.out.println("entre llamada sub funcion retorno");
+                            asignacion();
+                        } else {
+                            //System.out.println("entre llamada sub funcion");
+                            FilaProcedimiento funcion = (FilaProcedimiento) simbolo;
+                            System.out.println("parametros " + funcion.getListaParametros().size());
+                            llamadaSub();
+                        }
+                    } else {
+                        if (simbolo.getTipoConstructor().equalsIgnoreCase("procedure")) {
+                            //System.out.println("entre llamada sub procedure");
+                            llamadaSub();
+                        } else {
+
+                            //System.out.println("entre asig");
+                            asignacion();
+                        }
+                    }
+                } else {
+                    throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), alcanceActual);
                 }
+                //try {
+                //    asignacion();
+                //} catch (UnexpectedToken e) {
+                //    llamadaSub();
+                //}
                 break;
 
             // Alternativa
@@ -172,7 +204,6 @@ public class AnalizadorSintactico {
         match(new Token("tk_asignacion"));
         String tipo = expresion();
         Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
-
         // este simbolo == null ya no cumple la funcion de anticipar el retorno
         // ya que se carga la funcion en la TS 
         if (simbolo == null) {
@@ -257,7 +288,7 @@ public class AnalizadorSintactico {
 
         // Se termina el alcance por lo que se saca la tabla de simbolos de la pila
         this.tablasSimbolo.pop();
-
+        //System.out.println("fin funcion");
         match(new Token("tk_puntocoma"));
     }
 
@@ -396,13 +427,61 @@ public class AnalizadorSintactico {
     }
 
     public void llamadaSub() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
-        //match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
+        Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+        FilaProcedimiento filaOprocedimiento = (FilaProcedimiento) simbolo;
+        int cantParametros = 0;
+        String tipo = "";
+        match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
+        // falta tener en cuanta cantidad de parametros y tipo
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
+            System.out.println("ultimo " + ultimoToken.getNombreToken());
+            //paramatros de llamada
+            FilaVariable parametrollamada = (FilaVariable) this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+            //System.out.println("paramtro " + parametrollamada);
             expresion();
+            //paramametros guardados en TS
+            FilaVariable parametro = (FilaVariable) filaOprocedimiento.getListaParametros().get(cantParametros);
+            tipo = parametro.getTipo();
+            System.out.println("Nombre var definida <" + parametro.getNombre() + "> tipo esperado " + tipo);
+            if (parametrollamada != null) {
+                System.out.println("parametro llamada <" + parametrollamada.getNombre() + "> tipo " + parametrollamada.getTipo());
+                if (!parametrollamada.getTipo().equalsIgnoreCase(tipo)) {
+                    throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+                }
+            } else {
+                //tipo boolean o integer puro no guardado 
+                System.out.println("entre por tipo puro");
+                if (!ultimoToken.getNombreToken().equalsIgnoreCase("tk_boolean") && !tipo.equalsIgnoreCase("tipo_boolean")) {
+                    throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+                }
+            }
             while (ultimoToken.equals(new Token("tk_coma"))) {
-                match(new Token("tk_coma"));
-                expresion();
+                if (cantParametros < filaOprocedimiento.getListaParametros().size()-1) {
+                    match(new Token("tk_coma"));
+                    //simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                    parametrollamada = (FilaVariable) this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                    System.out.println("parametro llamada <" + parametrollamada.getNombre() + "> tipo " + parametrollamada.getTipo());
+                    expresion();
+                    parametro = (FilaVariable) filaOprocedimiento.getListaParametros().get(cantParametros);
+                    tipo = parametro.getTipo();
+                    System.out.println("tipo parametro en TS" + tipo);
+                    if (parametrollamada != null) {
+                        System.out.println("parametro llamada " + parametrollamada.getNombre() + " tipo " + parametrollamada.getTipo());
+                        if (!parametrollamada.getTipo().equalsIgnoreCase(tipo)) {
+                            throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+                        }
+                    } else {
+                        if (!ultimoToken.getNombreToken().equalsIgnoreCase("tk_boolean") && !tipo.equalsIgnoreCase("tipo_boolean")) {
+                            throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+                        }
+                    }
+
+                } else {
+                    //si la cantidad de parametros es erronea
+                    throw new UnexpectedToken("tk_parentesis_der", ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
+                }
+                cantParametros++;
             }
             match(new Token("tk_parentesis_der"));
         }
@@ -446,9 +525,6 @@ public class AnalizadorSintactico {
         if (ultimoToken.equals(new Token("tk_op_or"))) {
             match(new Token("tk_op_or"));
             expresion_1();
-            expresionAux();
-            match(new Token("tk_op_or"));
-            tipo = expresion_1();
             expresionAux();
             if (tipo.equalsIgnoreCase("tipo_integer")) {
                 throw new WrongTypeException("boolean", lexico.obtenerNumeroLinea());
@@ -523,7 +599,7 @@ public class AnalizadorSintactico {
             //if (tipo.equalsIgnoreCase("tipo_boolean")) {
             //    throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
             //}
- 
+
             //tipo = expresion_3_aux();
             //tipo = "tipo_boolean";
             //System.out.println("tipo "+tipo);
@@ -657,30 +733,32 @@ public class AnalizadorSintactico {
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
             case "tk_id":
-                Token identificador = match(new Token("tk_id"));
-
+                //Token identificador = match(new Token("tk_id"));
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     llamadaSub();
                     //problemas cuando se llama una funcion o precedimiento dentro de otra
-                    FilaFuncion fila = (FilaFuncion) tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
+                    FilaFuncion fila = (FilaFuncion) tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
                     } else {
-                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+                        throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
                 } else {
-                    Fila fila = tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
+                    Fila fila = tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
                     if (fila != null) {
+                        //llamada a funcion sin parametros 
                         if (fila.getTipoConstructor().equalsIgnoreCase("function")) {
+                            llamadaSub();
                             tipo = ((FilaFuncion) fila).getTipoRetorno();
                         } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
+                            match(new Token("tk_id"));
                             tipo = ((FilaVariable) fila).getTipo();
                         } else {
                             throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
                         }
                     } else {
-                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
+                        throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
                 }
