@@ -864,4 +864,14 @@ public class AnalizadorSintactico {
         return contiene;
     }
 
+    private Fila obtenerIdentificador(Token identificador) {
+        Fila simbolo = null;
+        int i = this.tablasSimbolo.size() - 1;
+        while (i >= 0 && simbolo == null) {
+            simbolo = tablasSimbolo.get(i).obtenerSimbolo(identificador.getAtributoToken());
+            i--;
+        }
+        return simbolo;
+    }
+
 }
