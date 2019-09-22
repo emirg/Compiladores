@@ -9,10 +9,10 @@ package Exceptions;
  *
  * @author emiliano
  */
-public class UnexpectedChar extends LexicalException{
+public class UnexpectedCharException extends LexicalException{
     private static final long serialVersionUID = 1L;
 
-    public UnexpectedChar(char found, int numLine) {
+    public UnexpectedCharException(char found, int numLine) {
         super("Unexpected character. '" + found + "' is not a recognizable character", numLine);
     }
 }

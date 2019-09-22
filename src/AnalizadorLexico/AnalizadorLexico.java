@@ -1,7 +1,7 @@
 package AnalizadorLexico;
 
 import Exceptions.UnclosedCommentException;
-import Exceptions.UnexpectedChar;
+import Exceptions.UnexpectedCharException;
 import Exceptions.UnopenedCommentException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,7 +33,7 @@ public class AnalizadorLexico {
         this.ultimoTokenGenerado = null;
     }
 
-    public static void main(String[] args) throws UnclosedCommentException, UnexpectedChar {
+    public static void main(String[] args) throws UnclosedCommentException, UnexpectedCharException {
         if (args.length != 1) {
             System.out.println("Cantidad de argumentos incorrecta");
         } else {
@@ -260,7 +260,7 @@ public class AnalizadorLexico {
 
     }
 
-    public Token obtenerToken() throws UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public Token obtenerToken() throws UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
         try {
             while (caracterActual == -2) { // Caracter arbitrario usado para saber si se tiene que seguir leyendo
                 caracterActual = leerCaracter();
@@ -486,7 +486,7 @@ public class AnalizadorLexico {
                                         System.out.print(e.getMessage());
                                     }*/
                                     caracterActual = -1;
-                                    throw new UnexpectedChar((char) caracterActual, numLinea);
+                                    throw new UnexpectedCharException((char) caracterActual, numLinea);
                                 }
                             }
                         }
@@ -586,7 +586,7 @@ public class AnalizadorLexico {
         return constructorID.toString();
     }
 
-    private void leerComentario() throws UnclosedCommentException, UnexpectedChar {
+    private void leerComentario() throws UnclosedCommentException, UnexpectedCharException {
 
         caracterActual = leerCaracter();
         int lineaComienzoComentario = numLinea;
@@ -605,7 +605,7 @@ public class AnalizadorLexico {
             // fileWriter.write("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual
             //        + "\" no valido en los comentarios> \n");
             // throw new Exception("Linea " + numLinea + ": <Error: caracter \"" + (char) caracterActual + "\" no valido en los comentarios>");
-            throw new UnexpectedChar((char) caracterActual, numLinea);
+            throw new UnexpectedCharException((char) caracterActual, numLinea);
         }
     }
 

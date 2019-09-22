@@ -10,9 +10,10 @@ import AnalizadorSemantico.TablaSimbolo;
 import Exceptions.IdentifierAlreadyDefinedException;
 import Exceptions.IdentifierNotDefinedException;
 import Exceptions.UnclosedCommentException;
-import Exceptions.UnexpectedChar;
-import Exceptions.UnexpectedToken;
+import Exceptions.UnexpectedCharException;
+import Exceptions.UnexpectedTokenException;
 import Exceptions.UnopenedCommentException;
+import Exceptions.WrongArgumentsException;
 import Exceptions.WrongConstructorException;
 import Exceptions.WrongTypeException;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class AnalizadorSintactico {
         this.cargarNombresTokens();
     }
 
-    public Token match(Token t) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public Token match(Token t) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
         boolean hasMatched = ultimoToken.equals(t);
         Token tokenMatched = ultimoToken.clone();
 
@@ -63,12 +64,12 @@ public class AnalizadorSintactico {
                 tokenEncontrado = ultimoToken.getNombreToken();
             }
 
-            throw new UnexpectedToken(this.tablaNombresTokens.getOrDefault(tokenEsperado, tokenEsperado), this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
+            throw new UnexpectedTokenException(this.tablaNombresTokens.getOrDefault(tokenEsperado, tokenEsperado), this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
         return tokenMatched;
     }
 
-    public void program() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void program() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
 
@@ -105,7 +106,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_punto"));
     }
 
-    public void bloque() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void bloque() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         if (ultimoToken.equals(new Token("tk_begin"))) {
             sentenciaCompuesta();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
@@ -125,7 +126,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void sentencia() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void sentencia() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
@@ -195,11 +196,11 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("sentence", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
+                throw new UnexpectedTokenException("sentence", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
     }
 
-    public void asignacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void asignacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         Token identificador = match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         String tipo = expresion();
@@ -241,7 +242,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void funcion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void funcion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_function"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos 
@@ -292,7 +293,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void procedimiento() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_procedure"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos
@@ -336,7 +337,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void variables() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public void variables() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         if (ultimoToken.equals(new Token("tk_var"))) {
             match(new Token("tk_var"));
             do {
@@ -347,19 +348,19 @@ public class AnalizadorSintactico {
         }
     }
 
-    public ArrayList params() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public ArrayList params() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList nuevosParametros = new ArrayList();
 
         nuevosParametros.addAll(listaIdentificadores(true));
         ArrayList parametrosAux = paramsAux();
         if (!contieneIdentificador(nuevosParametros, parametrosAux)) {
-            nuevosParametros.addAll(paramsAux());
+            nuevosParametros.addAll(parametrosAux);
         }
 
         return nuevosParametros;
     }
 
-    public ArrayList paramsAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public ArrayList paramsAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList nuevosParametros = new ArrayList();
         while (ultimoToken.equals(new Token("tk_puntocoma"))) {
             match(new Token("tk_puntocoma"));
@@ -369,7 +370,7 @@ public class AnalizadorSintactico {
         return nuevosParametros;
     }
 
-    public ArrayList listaIdentificadores(boolean esParametro) throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public ArrayList listaIdentificadores(boolean esParametro) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList<FilaVariable> nuevosIdentificadores = new ArrayList();
         Token nuevoIdentificador = match(new Token("tk_id"));
 
@@ -377,7 +378,6 @@ public class AnalizadorSintactico {
             nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
         } else if (esParametro) {
             nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
-
         } else {
             throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
 
@@ -387,6 +387,8 @@ public class AnalizadorSintactico {
             match(new Token("tk_coma"));
             nuevoIdentificador = match(new Token("tk_id"));
             if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken()) && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro))) {
+                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
+            } else if (esParametro) {
                 nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
             } else {
                 throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
@@ -404,7 +406,7 @@ public class AnalizadorSintactico {
         return nuevosIdentificadores;
     }
 
-    public void alternativa() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void alternativa() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_if"));
         expresion();
         match(new Token("tk_then"));
@@ -412,96 +414,113 @@ public class AnalizadorSintactico {
         alternativaAux();
     }
 
-    public void alternativaAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void alternativaAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
             bloque();
         }
     }
 
-    public void repetitiva() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void repetitiva() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_while"));
         expresion();
         match(new Token("tk_do"));
         bloque();
     }
 
-    public void llamadaSub() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
-        Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
-        FilaProcedimiento filaOprocedimiento = (FilaProcedimiento) simbolo;
-        int cantParametros = 0;
-        String tipo = "";
-        match(new Token("tk_id")); // segun gramatica se haria aca pero por codigo se hace antes 
-        // falta tener en cuanta cantidad de parametros y tipo
+    public void llamadaSub() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+        int numeroParametroActual = 0;
+        String tipoParametro = "";
+        String tipoParametroEsperado = "";
+
+        Token identificadorSubprograma = match(new Token("tk_id"));
+        FilaProcedimiento simboloSubprograma = (FilaProcedimiento) this.tablasSimbolo.peek().obtenerSimbolo(identificadorSubprograma.getAtributoToken());
+        ArrayList listaParametros = simboloSubprograma.getListaParametros();
+
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
-            System.out.println("ultimo " + ultimoToken.getNombreToken());
-            //paramatros de llamada
-            FilaVariable parametrollamada = (FilaVariable) this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
-            //System.out.println("paramtro " + parametrollamada);
-            expresion();
-            //paramametros guardados en TS
-            FilaVariable parametro = (FilaVariable) filaOprocedimiento.getListaParametros().get(cantParametros);
-            tipo = parametro.getTipo();
-            System.out.println("Nombre var definida <" + parametro.getNombre() + "> tipo esperado " + tipo);
-            if (parametrollamada != null) {
-                System.out.println("parametro llamada <" + parametrollamada.getNombre() + "> tipo " + parametrollamada.getTipo());
-                if (!parametrollamada.getTipo().equalsIgnoreCase(tipo)) {
-                    throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+
+            if (listaParametros.size() > 0) {
+                // Parametros de llamada
+                Fila parametroLlamada = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+
+                // Si el identificador existe pero no es una función ni una variable (por lo tanto no puede ser un parametro)
+                if (parametroLlamada != null && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("function") && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("var")) {
+                    throw new WrongConstructorException(parametroLlamada.getNombre(), lexico.obtenerNumeroLinea());
                 }
-            } else {
-                //tipo boolean o integer puro no guardado 
-                System.out.println("entre por tipo puro");
-                if (!ultimoToken.getNombreToken().equalsIgnoreCase("tk_boolean") && !tipo.equalsIgnoreCase("tipo_boolean")) {
-                    throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+
+                // Consumimos el token del parametro
+                tipoParametro = expresion();
+
+                // Obtenemos el primer parametro
+                FilaVariable parametro = (FilaVariable) listaParametros.get(numeroParametroActual);
+                tipoParametroEsperado = parametro.getTipo();
+
+                if (!tipoParametro.equalsIgnoreCase(tipoParametroEsperado)) {
+                    throw new WrongTypeException(tipoParametroEsperado, lexico.obtenerNumeroLinea());
                 }
-            }
-            while (ultimoToken.equals(new Token("tk_coma"))) {
-                if (cantParametros < filaOprocedimiento.getListaParametros().size()-1) {
-                    match(new Token("tk_coma"));
-                    //simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
-                    parametrollamada = (FilaVariable) this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
-                    System.out.println("parametro llamada <" + parametrollamada.getNombre() + "> tipo " + parametrollamada.getTipo());
-                    expresion();
-                    parametro = (FilaVariable) filaOprocedimiento.getListaParametros().get(cantParametros);
-                    tipo = parametro.getTipo();
-                    System.out.println("tipo parametro en TS" + tipo);
-                    if (parametrollamada != null) {
-                        System.out.println("parametro llamada " + parametrollamada.getNombre() + " tipo " + parametrollamada.getTipo());
-                        if (!parametrollamada.getTipo().equalsIgnoreCase(tipo)) {
-                            throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
+
+                while (ultimoToken.equals(new Token("tk_coma"))) {
+
+                    if (numeroParametroActual < listaParametros.size() - 1) {
+                        numeroParametroActual++;
+                        match(new Token("tk_coma"));
+                        // Parametros de llamada
+                        parametroLlamada = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+
+                        // Si el identificador existe pero no es una función ni una variable (por lo tanto no puede ser un parametro)
+                        if (parametroLlamada != null && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("function") && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("var")) {
+                            throw new WrongConstructorException(parametroLlamada.getNombre(), lexico.obtenerNumeroLinea());
                         }
+
+                        // Consumimos el token del parametro
+                        tipoParametro = expresion();
+
+                        // Obtenemos el siguiente parametro
+                        parametro = (FilaVariable) listaParametros.get(numeroParametroActual);
+                        tipoParametroEsperado = parametro.getTipo();
+
+                        if (!tipoParametro.equalsIgnoreCase(tipoParametroEsperado)) {
+                            throw new WrongTypeException(tipoParametroEsperado, lexico.obtenerNumeroLinea());
+                        }
+
                     } else {
-                        if (!ultimoToken.getNombreToken().equalsIgnoreCase("tk_boolean") && !tipo.equalsIgnoreCase("tipo_boolean")) {
-                            throw new WrongTypeException(tipo, lexico.obtenerNumeroLinea());
-                        }
+                        // Si la cantidad de parametros es erronea
+                        throw new WrongArgumentsException(identificadorSubprograma.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
-                } else {
-                    //si la cantidad de parametros es erronea
-                    throw new UnexpectedToken("tk_parentesis_der", ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
                 }
-                cantParametros++;
+
+                if (listaParametros.size() - 1 > numeroParametroActual) {
+                    throw new WrongArgumentsException(identificadorSubprograma.getAtributoToken(), lexico.obtenerNumeroLinea());
+                }
+
+                match(new Token("tk_parentesis_der"));
+            } else {
+                throw new WrongArgumentsException(identificadorSubprograma.getAtributoToken(), lexico.obtenerNumeroLinea());
             }
-            match(new Token("tk_parentesis_der"));
+        } else {
+            if (listaParametros.size() > 0) {
+                throw new WrongArgumentsException(identificadorSubprograma.getAtributoToken(), lexico.obtenerNumeroLinea());
+            }
         }
     }
 
-    public void leer() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void leer() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_read"));
         match(new Token("tk_parentesis_izq"));
         match(new Token("tk_id"));
         match(new Token("tk_parentesis_der"));
     }
 
-    public void escribir() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void escribir() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
         match(new Token("tk_write"));
         match(new Token("tk_parentesis_izq"));
         match(new Token("tk_id")); // TODO: Agregar las modificaciones hechas en la gramática
         match(new Token("tk_parentesis_der"));
     }
 
-    public void sentenciaCompuesta() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public void sentenciaCompuesta() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_begin"));
         bloque();
         /* modificacion reciente de la gramatica*/
@@ -511,7 +530,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
     }
 
-    public String expresion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = expresion_1();
         String tipoAux = expresionAux();
         if (!tipoAux.equals("")) {
@@ -520,7 +539,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresionAux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresionAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_or"))) {
             match(new Token("tk_op_or"));
@@ -534,7 +553,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_1() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_1() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = expresion_2();
         String tipoAux = expresion_1_aux();
         if (!tipoAux.equals("")) {
@@ -544,7 +563,7 @@ public class AnalizadorSintactico {
 
     }
 
-    public String expresion_1_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_1_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_and"))) {
@@ -559,7 +578,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_2() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_2() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_not"))) {
@@ -574,7 +593,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_3() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = expresion_4();
         //System.out.println("exp_4 " + tipo);
         String tipoAux = expresion_3_aux();
@@ -590,7 +609,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_3_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_relacional"))) {
             operador_comparacion();
@@ -607,7 +626,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_4() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = expresion_5();
         String tipoAux = expresion_4_aux();
         if (!tipoAux.equals("")) {
@@ -616,7 +635,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_4_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
@@ -638,7 +657,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_5() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = expresion_6();
         String tipoAux = expresion_5_aux();
         if (!tipoAux.equals("")) {
@@ -647,7 +666,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5_aux() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_5_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_mult"))) {
             match(new Token("tk_op_mult"));
@@ -669,7 +688,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_6() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String expresion_6() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo;
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
@@ -691,7 +710,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public void operador_comparacion() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException {
+    public void operador_comparacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
         switch (ultimoToken.getAtributoToken()) {
             case "op_igual":
                 match(new Token("tk_op_relacional", "op_igual"));
@@ -723,12 +742,12 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("comparison operator", tokenEncontrado, lexico.obtenerNumeroLinea());
+                throw new UnexpectedTokenException("comparison operator", tokenEncontrado, lexico.obtenerNumeroLinea());
 
         }
     }
 
-    public String factor() throws UnexpectedToken, UnexpectedChar, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException {
+    public String factor() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         String tipo = "";
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
@@ -782,7 +801,7 @@ public class AnalizadorSintactico {
                     tokenEncontrado = ultimoToken.getNombreToken();
                 }
 
-                throw new UnexpectedToken("factor", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
+                throw new UnexpectedTokenException("factor", this.tablaNombresTokens.getOrDefault(tokenEncontrado, tokenEncontrado), lexico.obtenerNumeroLinea());
         }
         return tipo;
     }
