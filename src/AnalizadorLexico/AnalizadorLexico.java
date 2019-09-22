@@ -23,7 +23,7 @@ public class AnalizadorLexico {
     private FileWriter fileWriter;
     private int caracterActual;
     private Token ultimoTokenGenerado;
-    private int numLinea = 0;
+    private int numLinea = 1;
 
     public AnalizadorLexico(String nombreArchivo) throws FileNotFoundException {
 
@@ -414,11 +414,13 @@ public class AnalizadorLexico {
                         // dejamos
                         // cadenaAux = "<newline> \n";
                         // fileWriter.write(cadenaAux);
+                        numLinea++;
                         caracterActual = -2;
                         break;
                     case '\r': // Idem \n pero para CRLF
                         // cadenaAux = "<newline> \n";
                         // fileWriter.write(cadenaAux);
+                        numLinea++;
                         caracterActual = -2;
                         break;
                     case '\t': // Probablemente haya que ignorar, no devolver un <tab>, pero por ahora lo
@@ -614,7 +616,7 @@ public class AnalizadorLexico {
         try {
             caracter = reader.read();
             if (caracter == '\n') {
-                numLinea++;
+               // numLinea++;
             }
         } catch (IOException e) {
             e.printStackTrace();
