@@ -27,14 +27,12 @@ public class AnalizadorSintactico {
     private HashMap<String, String> tablaNombresTokens; // Utilizado para los mensajes de errores
     private Token ultimoToken;
     private final boolean debugging; // Utilizada para mostrar mensajes de debugging
-    private int alcanceActual;
 
     public AnalizadorSintactico(AnalizadorLexico lexico, boolean debugging) {
         this.lexico = lexico;
         this.ultimoToken = null;
         this.tablasSimbolo = new Stack();
         this.debugging = debugging;
-        this.alcanceActual = 0;
         this.tablaNombresTokens = new HashMap();
         this.cargarNombresTokens();
     }
@@ -134,11 +132,13 @@ public class AnalizadorSintactico {
                 // el control con respecto a los parametros se debe hacer aca porque pierdo el nombre de 
                 // la funcion o procedemiento
                 //System.out.println("ultimo token " + ultimoToken.getAtributoToken());
-                Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                Fila simbolo = this.obtenerIdentificador(ultimoToken.getAtributoToken());
                 if (simbolo != null) {
-                    System.out.println("simbolo " + simbolo.getTipoConstructor());
+                    if (debugging) {
+                        System.out.println("simbolo " + simbolo.getTipoConstructor());
+                    }
                     if (simbolo.getTipoConstructor().equalsIgnoreCase("function")) {
-                        Fila simboloRetorno = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+                        Fila simboloRetorno = this.obtenerIdentificador("retorno");
 
                         if (simboloRetorno != null && simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
                             //System.out.println("simbolo retorno " + simboloRetorno.getNombre());
@@ -147,7 +147,9 @@ public class AnalizadorSintactico {
                         } else {
                             //System.out.println("entre llamada sub funcion");
                             FilaProcedimiento funcion = (FilaProcedimiento) simbolo;
-                            System.out.println("parametros " + funcion.getListaParametros().size());
+                            if (debugging) {
+                                System.out.println("parametros " + funcion.getListaParametros().size());
+                            }
                             llamadaSub();
                         }
                     } else {
@@ -161,7 +163,7 @@ public class AnalizadorSintactico {
                         }
                     }
                 } else {
-                    throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), alcanceActual);
+                    throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
                 }
                 //try {
                 //    asignacion();
@@ -204,11 +206,12 @@ public class AnalizadorSintactico {
         Token identificador = match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         String tipo = expresion();
-        Fila simbolo = this.tablasSimbolo.peek().obtenerSimbolo(identificador.getAtributoToken());
+        // Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
+        Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
         // este simbolo == null ya no cumple la funcion de anticipar el retorno
         // ya que se carga la funcion en la TS 
         if (simbolo == null) {
-            //simbolo = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+            //simbolo = this.obtenerIdentificador("retorno");
             //if (simbolo == null || !simbolo.getNombre().equalsIgnoreCase(identificador.getNombreToken())) {
             throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
             //} else {
@@ -224,7 +227,7 @@ public class AnalizadorSintactico {
                     throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
                 }
             } else {
-                Fila simboloRetorno = this.tablasSimbolo.peek().obtenerSimbolo("retorno");
+                Fila simboloRetorno = this.obtenerIdentificador("retorno");
                 if (simboloRetorno != null) {
                     if (simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
                         if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
@@ -434,7 +437,7 @@ public class AnalizadorSintactico {
         String tipoParametroEsperado = "";
 
         Token identificadorSubprograma = match(new Token("tk_id"));
-        FilaProcedimiento simboloSubprograma = (FilaProcedimiento) this.tablasSimbolo.peek().obtenerSimbolo(identificadorSubprograma.getAtributoToken());
+        FilaProcedimiento simboloSubprograma = (FilaProcedimiento) this.obtenerIdentificador(identificadorSubprograma.getAtributoToken());
         ArrayList listaParametros = simboloSubprograma.getListaParametros();
 
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
@@ -442,7 +445,7 @@ public class AnalizadorSintactico {
 
             if (listaParametros.size() > 0) {
                 // Parametros de llamada
-                Fila parametroLlamada = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                Fila parametroLlamada = this.obtenerIdentificador(ultimoToken.getAtributoToken());
 
                 // Si el identificador existe pero no es una función ni una variable (por lo tanto no puede ser un parametro)
                 if (parametroLlamada != null && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("function") && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("var")) {
@@ -466,7 +469,7 @@ public class AnalizadorSintactico {
                         numeroParametroActual++;
                         match(new Token("tk_coma"));
                         // Parametros de llamada
-                        parametroLlamada = this.tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                        parametroLlamada = this.obtenerIdentificador(ultimoToken.getAtributoToken());
 
                         // Si el identificador existe pero no es una función ni una variable (por lo tanto no puede ser un parametro)
                         if (parametroLlamada != null && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("function") && !parametroLlamada.getTipoConstructor().equalsIgnoreCase("var")) {
@@ -603,7 +606,7 @@ public class AnalizadorSintactico {
                 //tipo = tipoAux;
                 tipo = "tipo_boolean";
             } else {
-                throw new WrongTypeException(tipoAux, alcanceActual);
+                throw new WrongTypeException(tipoAux, lexico.obtenerNumeroLinea());
             }
         }
         return tipo;
@@ -756,7 +759,7 @@ public class AnalizadorSintactico {
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     llamadaSub();
                     //problemas cuando se llama una funcion o precedimiento dentro de otra
-                    FilaFuncion fila = (FilaFuncion) tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                    FilaFuncion fila = (FilaFuncion) obtenerIdentificador(ultimoToken.getAtributoToken());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
                     } else {
@@ -764,7 +767,7 @@ public class AnalizadorSintactico {
                     }
 
                 } else {
-                    Fila fila = tablasSimbolo.peek().obtenerSimbolo(ultimoToken.getAtributoToken());
+                    Fila fila = obtenerIdentificador(ultimoToken.getAtributoToken());
                     if (fila != null) {
                         //llamada a funcion sin parametros 
                         if (fila.getTipoConstructor().equalsIgnoreCase("function")) {
@@ -864,11 +867,11 @@ public class AnalizadorSintactico {
         return contiene;
     }
 
-    private Fila obtenerIdentificador(Token identificador) {
+    private Fila obtenerIdentificador(String identificador) {
         Fila simbolo = null;
         int i = this.tablasSimbolo.size() - 1;
         while (i >= 0 && simbolo == null) {
-            simbolo = tablasSimbolo.get(i).obtenerSimbolo(identificador.getAtributoToken());
+            simbolo = tablasSimbolo.get(i).obtenerSimbolo(identificador);
             i--;
         }
         return simbolo;
