@@ -224,14 +224,14 @@ public class AnalizadorSintactico {
         } else {
             if (simbolo.getTipoConstructor().equalsIgnoreCase("var")) {
                 if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
-                    throw new WrongTypeException(((FilaVariable) simbolo).getTipo(), lexico.obtenerNumeroLinea());
+                    throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simbolo).getTipo()), lexico.obtenerNumeroLinea());
                 }
             } else {
                 Fila simboloRetorno = this.obtenerIdentificador("retorno");
                 if (simboloRetorno != null) {
                     if (simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
                         if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
-                            throw new WrongTypeException(((FilaVariable) simboloRetorno).getTipo(), lexico.obtenerNumeroLinea());
+                            throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simboloRetorno).getTipo()), lexico.obtenerNumeroLinea());
                         }
                     } else {
                         throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
@@ -460,7 +460,7 @@ public class AnalizadorSintactico {
                 tipoParametroEsperado = parametro.getTipo();
 
                 if (!tipoParametro.equalsIgnoreCase(tipoParametroEsperado)) {
-                    throw new WrongTypeException(tipoParametroEsperado, lexico.obtenerNumeroLinea());
+                    throw new WrongTypeException(this.tablaNombresTokens.get(tipoParametroEsperado), lexico.obtenerNumeroLinea());
                 }
 
                 while (ultimoToken.equals(new Token("tk_coma"))) {
@@ -484,7 +484,7 @@ public class AnalizadorSintactico {
                         tipoParametroEsperado = parametro.getTipo();
 
                         if (!tipoParametro.equalsIgnoreCase(tipoParametroEsperado)) {
-                            throw new WrongTypeException(tipoParametroEsperado, lexico.obtenerNumeroLinea());
+                            throw new WrongTypeException(this.tablaNombresTokens.get(tipoParametroEsperado), lexico.obtenerNumeroLinea());
                         }
 
                     } else {
@@ -606,7 +606,7 @@ public class AnalizadorSintactico {
                 //tipo = tipoAux;
                 tipo = "tipo_boolean";
             } else {
-                throw new WrongTypeException(tipoAux, lexico.obtenerNumeroLinea());
+                throw new WrongTypeException(this.tablaNombresTokens.get(tipoAux), lexico.obtenerNumeroLinea());
             }
         }
         return tipo;
@@ -827,6 +827,7 @@ public class AnalizadorSintactico {
         tablaNombresTokens.put("tk_do", "do");
         tablaNombresTokens.put("tk_read", "read");
         tablaNombresTokens.put("tk_write", "write");
+        tablaNombresTokens.put("tk_tipo", "type");
         tablaNombresTokens.put("tipo_boolean", "boolean");
         tablaNombresTokens.put("tipo_integer", "integer");
         tablaNombresTokens.put("valor_true", "true");
