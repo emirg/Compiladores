@@ -25,9 +25,12 @@ public class Compilador {
             AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
             sintactico.program();
             System.out.println("Compilation successful");
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException e) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Please select file to compile");
         } catch (UnexpectedTokenException | UnexpectedCharException | UnopenedCommentException | UnclosedCommentException | IdentifierAlreadyDefinedException | IdentifierNotDefinedException | WrongTypeException | WrongConstructorException | WrongArgumentsException e) {
             System.err.println(e.getMessage());
             System.err.println("Compilation failed");
