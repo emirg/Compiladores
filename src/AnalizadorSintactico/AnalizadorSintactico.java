@@ -670,7 +670,12 @@ public class AnalizadorSintactico {
         String tipo = expresion_6();
         String tipoAux = expresion_5_aux();
         if (!tipoAux.equals("")) {
-            tipo = tipoAux;
+            if (tipo.equalsIgnoreCase(tipoAux)) {
+                //tipo = tipoAux;
+                tipo = tipoAux;
+            } else {
+                throw new WrongTypeException(this.tablaNombresTokens.get(tipoAux), lexico.obtenerNumeroLinea());
+            }
         }
         return tipo;
     }
