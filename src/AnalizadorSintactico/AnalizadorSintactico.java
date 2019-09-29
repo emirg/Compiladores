@@ -516,10 +516,10 @@ public class AnalizadorSintactico {
         match(new Token("tk_parentesis_der"));
     }
 
-    public void escribir() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
+    public void escribir() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
         match(new Token("tk_write"));
         match(new Token("tk_parentesis_izq"));
-        match(new Token("tk_id")); // TODO: Agregar las modificaciones hechas en la gramática
+        expresion();
         match(new Token("tk_parentesis_der"));
     }
 
@@ -639,7 +639,7 @@ public class AnalizadorSintactico {
             } else {
                 throw new WrongTypeException(this.tablaNombresTokens.get(tipoAux), lexico.obtenerNumeroLinea());
             }
-            
+
         }
         return tipo;
     }
