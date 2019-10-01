@@ -1,6 +1,8 @@
 
 build/
 
+nbproject/
+
 dist/
 
-nbproject/
+jars/archivoTokens.txt
