@@ -281,10 +281,10 @@ public class AnalizadorSintactico {
             variables();
         }
 
-        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while ((ultimoToken.equals(new Token("tk_function"))) || (ultimoToken.equals(new Token("tk_procedure")))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
                 funcion();
-            } else {
+            } else if (ultimoToken.equals(new Token("tk_procedure"))){
                 procedimiento();
             }
         }
@@ -326,7 +326,7 @@ public class AnalizadorSintactico {
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
         }
-        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedimiento"))) {
+        while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedure"))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
                 funcion();
             } else {
