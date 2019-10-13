@@ -250,12 +250,18 @@ public class AnalizadorSintactico {
 
         // Guarda los datos para agregarlos a la tabla de simbolos 
         Token nuevaFuncion = match(new Token("tk_id"));
-        ArrayList parametros = new ArrayList();
+        ArrayList<FilaVariable> parametros = new ArrayList();
 
         /* los parenteisis son condicionales? o solo los parametros internos  */
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
             parametros.addAll(params());
+            for (FilaVariable parametro : parametros) {
+                String nombreParametro = parametro.getNombre();
+                if (nombreParametro.equalsIgnoreCase(nuevaFuncion.getAtributoToken())) {
+                    throw new IdentifierAlreadyDefinedException(nombreParametro, lexico.obtenerNumeroLinea());
+                }
+            }
             match(new Token("tk_parentesis_der"));
         }
         match(new Token("tk_dospuntos"));
@@ -284,7 +290,7 @@ public class AnalizadorSintactico {
         while ((ultimoToken.equals(new Token("tk_function"))) || (ultimoToken.equals(new Token("tk_procedure")))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
                 funcion();
-            } else if (ultimoToken.equals(new Token("tk_procedure"))){
+            } else if (ultimoToken.equals(new Token("tk_procedure"))) {
                 procedimiento();
             }
         }
@@ -301,11 +307,17 @@ public class AnalizadorSintactico {
 
         // Guarda los datos para agregarlos a la tabla de simbolos
         Token nuevoProcedimiento = match(new Token("tk_id"));
-        ArrayList parametros = new ArrayList();
+        ArrayList<FilaVariable> parametros = new ArrayList();
 
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
             match(new Token("tk_parentesis_izq"));
             parametros.addAll(params());
+            for (FilaVariable parametro : parametros) {
+                String nombreParametro = parametro.getNombre();
+                if (nombreParametro.equalsIgnoreCase(nuevoProcedimiento.getAtributoToken())) {
+                    throw new IdentifierAlreadyDefinedException(nombreParametro, lexico.obtenerNumeroLinea());
+                }
+            }
             match(new Token("tk_parentesis_der"));
         }
 
@@ -351,7 +363,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public ArrayList params() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public ArrayList<FilaVariable> params() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList nuevosParametros = new ArrayList();
 
         nuevosParametros.addAll(listaIdentificadores(true));
@@ -373,7 +385,7 @@ public class AnalizadorSintactico {
         return nuevosParametros;
     }
 
-    public ArrayList listaIdentificadores(boolean esParametro) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public ArrayList<FilaVariable> listaIdentificadores(boolean esParametro) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
         ArrayList<FilaVariable> nuevosIdentificadores = new ArrayList();
         Token nuevoIdentificador = match(new Token("tk_id"));
 
@@ -383,7 +395,6 @@ public class AnalizadorSintactico {
             nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
         } else {
             throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
-
         }
 
         while (ultimoToken.equals(new Token("tk_coma"))) {
@@ -391,7 +402,7 @@ public class AnalizadorSintactico {
             nuevoIdentificador = match(new Token("tk_id"));
             if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken()) && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro))) {
                 nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
-            } else if (esParametro) {
+            } else if (esParametro && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro))) {
                 nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", esParametro));
             } else {
                 throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
