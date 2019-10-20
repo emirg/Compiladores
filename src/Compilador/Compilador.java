@@ -12,6 +12,7 @@ import Exceptions.WrongArgumentsException;
 import Exceptions.WrongConstructorException;
 import Exceptions.WrongTypeException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
 
@@ -23,11 +24,15 @@ public class Compilador {
         try {
             lexico = new AnalizadorLexico("/home/emiliano/Git/Facultad/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
             AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
+            String archivoCodigoMepa = "/home/emiliano/Git/Facultad/Compiladores/test/MEPA/codigoMEPA.txt";
+            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, archivoCodigoMepa, false);
             sintactico.program();
             System.out.println("Compilation successful");
         } catch (FileNotFoundException e) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");
+        } catch (IOException e) {
+            System.err.println("IO Error");
         } catch (ArrayIndexOutOfBoundsException e) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("Please select file to compile");

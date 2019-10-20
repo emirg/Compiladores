@@ -16,6 +16,10 @@ import Exceptions.UnopenedCommentException;
 import Exceptions.WrongArgumentsException;
 import Exceptions.WrongConstructorException;
 import Exceptions.WrongTypeException;
+import MEPA.MEPAManager;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -27,14 +31,16 @@ public class AnalizadorSintactico {
     private HashMap<String, String> tablaNombresTokens; // Utilizado para los mensajes de errores
     private Token ultimoToken;
     private final boolean debugging; // Utilizada para mostrar mensajes de debugging
+    private final MEPAManager mepaManager;
 
-    public AnalizadorSintactico(AnalizadorLexico lexico, boolean debugging) {
+    public AnalizadorSintactico(AnalizadorLexico lexico,String nombreArchivo, boolean debugging) throws IOException {
         this.lexico = lexico;
         this.ultimoToken = null;
         this.tablasSimbolo = new Stack();
         this.debugging = debugging;
         this.tablaNombresTokens = new HashMap();
         this.cargarNombresTokens();
+        this.mepaManager = new MEPAManager(new BufferedWriter(new FileWriter(nombreArchivo)));
     }
 
     public Token match(Token t) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
