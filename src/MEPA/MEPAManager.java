@@ -6,183 +6,193 @@
 package MEPA;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class MEPAManager {
 
-    private BufferedWriter flujo;
+    private BufferedWriter writer;
 
-    public MEPAManager(BufferedWriter flujo) {
-        this.flujo = flujo;
+    public MEPAManager(String archivoMEPA) throws IOException {
+        this.writer = new BufferedWriter(new FileWriter(archivoMEPA));
     }
 
-    public BufferedWriter getFlujo() {
-        return flujo;
+    public BufferedWriter getWriter() {
+        return writer;
     }
 
-    public void setFlujo(BufferedWriter flujo) {
-        this.flujo = flujo;
+    public void setWriter(BufferedWriter writer) {
+        this.writer = writer;
+    }
+    
+    public void closeWriter() throws IOException{
+        this.writer.close();
     }
 
     // Inicio de programa
     public void INPP() throws IOException {
-        flujo.write("INPP");
-        flujo.newLine();
+        writer.write("INPP");
+        writer.newLine();
     }
 
     // Entrada procedimiento
     public void ENPR(int anidamiento) throws IOException {
-        flujo.write("ENPR " + anidamiento);
-        flujo.newLine();
+        writer.write("ENPR " + anidamiento);
+        writer.newLine();
     }
 
     // Llamada procedimiento
     public void LLPR(String label) throws IOException {
-        flujo.write("LLPR " + label);
-        flujo.newLine();
+        writer.write("LLPR " + label);
+        writer.newLine();
     }
 
     // Parada maquina MEPA
     public void PARA() throws IOException {
-        flujo.write("PARA");
-        flujo.newLine();
+        writer.write("PARA");
+        writer.newLine();
     }
 
     // Apila valor de variable
     public void APVL(int anidamiento, int offset) throws IOException {
-        flujo.write("APVL" + anidamiento + "," + offset);
-        flujo.newLine();
+        writer.write("APVL" + anidamiento + "," + offset);
+        writer.newLine();
     }
 
     // Almacena tope de pila en variable
     public void ALVL(int anidamiento, int offset) throws IOException {
-        flujo.write("APVL" + anidamiento + "," + offset);
-        flujo.newLine();
+        writer.write("APVL" + anidamiento + "," + offset);
+        writer.newLine();
     }
 
     // Apila una constante
     public void APCT(String constante) throws IOException {
-        flujo.write("APCT " + constante);
-        flujo.newLine();
+        writer.write("APCT " + constante);
+        writer.newLine();
     }
 
     public void SUMA() throws IOException {
-        flujo.write("SUMA");
-        flujo.newLine();
+        writer.write("SUMA");
+        writer.newLine();
     }
 
     public void SUST() throws IOException {
-        flujo.write("SUST");
-        flujo.newLine();
+        writer.write("SUST");
+        writer.newLine();
     }
 
     public void MULT() throws IOException {
-        flujo.write("MULT");
-        flujo.newLine();
+        writer.write("MULT");
+        writer.newLine();
     }
 
     public void DIVI() throws IOException {
-        flujo.write("DIVI");
-        flujo.newLine();
+        writer.write("DIVI");
+        writer.newLine();
     }
 
     // Menos unario
     public void UMEN() throws IOException {
-        flujo.write("UMEN");
-        flujo.newLine();
+        writer.write("UMEN");
+        writer.newLine();
     }
 
     // Conjuncion logica
     public void CONJ() throws IOException {
-        flujo.write("CONJ");
-        flujo.newLine();
+        writer.write("CONJ");
+        writer.newLine();
     }
 
     // Disyuncion logica
     public void DISJ() throws IOException {
-        flujo.write("DISJ");
-        flujo.newLine();
+        writer.write("DISJ");
+        writer.newLine();
     }
 
     // Negacion logica
     public void NEGA() throws IOException {
-        flujo.write("NEGA");
-        flujo.newLine();
+        writer.write("NEGA");
+        writer.newLine();
     }
 
     // Comparar por menor
     public void CMME() throws IOException {
-        flujo.write("CMME");
-        flujo.newLine();
+        writer.write("CMME");
+        writer.newLine();
     }
 
     // Comporar por mayor
     public void CMMA() throws IOException {
-        flujo.write("CMMA");
-        flujo.newLine();
+        writer.write("CMMA");
+        writer.newLine();
     }
 
     // Comparar por igual
     public void CMIG() throws IOException {
-        flujo.write("CMIG");
-        flujo.newLine();
+        writer.write("CMIG");
+        writer.newLine();
     }
 
     // Comparar por desigual
     public void CMDG() throws IOException {
-        flujo.write("CMDG");
-        flujo.newLine();
+        writer.write("CMDG");
+        writer.newLine();
     }
 
     // Comparar por menor o igual
     public void CMNI() throws IOException {
-        flujo.write("CMNI");
-        flujo.newLine();
+        writer.write("CMNI");
+        writer.newLine();
     }
 
     // Comprar por mayor o igual
     public void CMYI() throws IOException {
-        flujo.write("CMYI");
-        flujo.newLine();
+        writer.write("CMYI");
+        writer.newLine();
     }
 
     public void LEER() throws IOException {
-        flujo.write("LEER");
-        flujo.newLine();
+        writer.write("LEER");
+        writer.newLine();
     }
 
     public void IMPR() throws IOException {
-        flujo.write("IMPR");
-        flujo.newLine();
+        writer.write("IMPR");
+        writer.newLine();
     }
 
     public void NADA() throws IOException {
-        flujo.write("NADA");
-        flujo.newLine();
+        writer.write("NADA");
+        writer.newLine();
+    }
+    
+    public void RMEM(int memoria) throws IOException {
+        writer.write("RMEM   " + memoria);
+        writer.newLine();
     }
 
     // Liberar memoria de variables locales
     public void LMEM(int memoria) throws IOException {
-        flujo.write("LMEM   " + memoria);
-        flujo.newLine();
+        writer.write("LMEM   " + memoria);
+        writer.newLine();
     }
 
     // Retornar de un procedimiento de nivel k
     public void RTPR(int anidamiento, int cantParametros) throws IOException {
-        flujo.write("RTPR   " + anidamiento + "," + cantParametros);
-        flujo.newLine();
+        writer.write("RTPR   " + anidamiento + "," + cantParametros);
+        writer.newLine();
     }
 
     // Desviar siempre
     public void DSVS(String label) throws IOException {
-        flujo.write("DSVS   " + label);
-        flujo.newLine();
+        writer.write("DSVS   " + label);
+        writer.newLine();
     }
 
     // Desviar si tope falso
     public void DSVF(String label) throws IOException {
-        flujo.write("DSVF   " + label);
-        flujo.newLine();
+        writer.write("DSVF   " + label);
+        writer.newLine();
     }
 
 }

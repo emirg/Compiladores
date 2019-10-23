@@ -11,6 +11,7 @@ import Exceptions.UnopenedCommentException;
 import Exceptions.WrongArgumentsException;
 import Exceptions.WrongConstructorException;
 import Exceptions.WrongTypeException;
+import MEPA.MEPAManager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 // import java.util.logging.Level;
@@ -21,11 +22,12 @@ public class Compilador {
     public static void main(String[] args) {
 
         AnalizadorLexico lexico;
+        MEPAManager mepa;
         try {
             lexico = new AnalizadorLexico("/home/emiliano/Git/Facultad/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
             AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
-            String archivoCodigoMepa = "/home/emiliano/Git/Facultad/Compiladores/test/MEPA/codigoMEPA.txt";
-            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, archivoCodigoMepa, false);
+            mepa = new MEPAManager("/home/emiliano/Git/Facultad/Compiladores/test/MEPA/codigoMEPA.txt");
+            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, mepa, false);
             sintactico.program();
             System.out.println("Compilation successful");
         } catch (FileNotFoundException e) {

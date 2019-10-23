@@ -33,14 +33,14 @@ public class AnalizadorSintactico {
     private final boolean debugging; // Utilizada para mostrar mensajes de debugging
     private final MEPAManager mepaManager;
 
-    public AnalizadorSintactico(AnalizadorLexico lexico,String nombreArchivo, boolean debugging) throws IOException {
+    public AnalizadorSintactico(AnalizadorLexico lexico, MEPAManager mepa, boolean debugging) throws IOException {
         this.lexico = lexico;
         this.ultimoToken = null;
         this.tablasSimbolo = new Stack();
         this.debugging = debugging;
         this.tablaNombresTokens = new HashMap();
         this.cargarNombresTokens();
-        this.mepaManager = new MEPAManager(new BufferedWriter(new FileWriter(nombreArchivo)));
+        this.mepaManager = mepa;
     }
 
     public Token match(Token t) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
@@ -73,7 +73,7 @@ public class AnalizadorSintactico {
         return tokenMatched;
     }
 
-    public void program() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void program() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
 
@@ -86,6 +86,9 @@ public class AnalizadorSintactico {
 
         // this.tablasSimbolo.peek().agregarSimbolo("test", new Fila("test", "test", lexico.obtenerNumeroLinea()));
         match(new Token("tk_puntocoma"));
+
+        this.mepaManager.INPP();
+
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
         }
@@ -108,6 +111,7 @@ public class AnalizadorSintactico {
         }
         match(new Token("tk_end"));
         match(new Token("tk_punto"));
+        this.mepaManager.closeWriter();
     }
 
     public void bloque() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
@@ -251,7 +255,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void funcion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void funcion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_function"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos 
@@ -308,7 +312,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void procedimiento() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void procedimiento() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_procedure"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos
@@ -358,14 +362,15 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
     }
 
-    public void variables() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
+    public void variables() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, IOException {
         if (ultimoToken.equals(new Token("tk_var"))) {
+            int contadorVariables = 0;
             match(new Token("tk_var"));
             do {
-                listaIdentificadores(false);
+                contadorVariables = contadorVariables + listaIdentificadores(false).size();
                 match(new Token("tk_puntocoma"));
             } while (ultimoToken.equals(new Token("tk_id")));
-
+            this.mepaManager.RMEM(contadorVariables);
         }
     }
 
