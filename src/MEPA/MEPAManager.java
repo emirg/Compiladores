@@ -37,13 +37,13 @@ public class MEPAManager {
 
     // Entrada procedimiento
     public void ENPR(int anidamiento) throws IOException {
-        writer.write("ENPR " + anidamiento);
+        writer.write("ENPR  " + anidamiento);
         writer.newLine();
     }
 
     // Llamada procedimiento
     public void LLPR(String label) throws IOException {
-        writer.write("LLPR " + label);
+        writer.write("LLPR  " + label);
         writer.newLine();
     }
 
@@ -55,19 +55,19 @@ public class MEPAManager {
 
     // Apila valor de variable
     public void APVL(int anidamiento, int offset) throws IOException {
-        writer.write("APVL" + anidamiento + "," + offset);
+        writer.write("APVL  " + anidamiento + "," + offset);
         writer.newLine();
     }
 
     // Almacena tope de pila en variable
     public void ALVL(int anidamiento, int offset) throws IOException {
-        writer.write("APVL" + anidamiento + "," + offset);
+        writer.write("APVL  " + anidamiento + "," + offset);
         writer.newLine();
     }
 
     // Apila una constante
     public void APCT(String constante) throws IOException {
-        writer.write("APCT " + constante);
+        writer.write("APCT  " + constante);
         writer.newLine();
     }
 

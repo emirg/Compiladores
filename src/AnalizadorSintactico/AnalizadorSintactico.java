@@ -32,6 +32,7 @@ public class AnalizadorSintactico {
     private Token ultimoToken;
     private final boolean debugging; // Utilizada para mostrar mensajes de debugging
     private final MEPAManager mepaManager;
+    private int anidamiento;
 
     public AnalizadorSintactico(AnalizadorLexico lexico, MEPAManager mepa, boolean debugging) throws IOException {
         this.lexico = lexico;
@@ -41,6 +42,7 @@ public class AnalizadorSintactico {
         this.tablaNombresTokens = new HashMap();
         this.cargarNombresTokens();
         this.mepaManager = mepa;
+        this.anidamiento = 0;
     }
 
     public Token match(Token t) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
@@ -92,6 +94,9 @@ public class AnalizadorSintactico {
         if (ultimoToken.equals(new Token("tk_var"))) {
             variables();
         }
+        
+        this.mepaManager.DSVS(""); // TODO: Definir como se trabajan los labels
+        
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedure"))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
                 funcion();
@@ -111,10 +116,11 @@ public class AnalizadorSintactico {
         }
         match(new Token("tk_end"));
         match(new Token("tk_punto"));
+        this.mepaManager.PARA();
         this.mepaManager.closeWriter();
     }
 
-    public void bloque() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void bloque() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         if (ultimoToken.equals(new Token("tk_begin"))) {
             sentenciaCompuesta();
             while (ultimoToken.equals(new Token("tk_puntocoma"))) {
@@ -134,7 +140,7 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void sentencia() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void sentencia() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
@@ -212,10 +218,11 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void asignacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void asignacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         Token identificador = match(new Token("tk_id"));
         match(new Token("tk_asignacion"));
         String tipo = expresion();
+        this.mepaManager.ALVL(anidamiento, anidamiento); // TODO: Definir como obtener el offset
         // Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
         Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
         // este simbolo == null ya no cumple la funcion de anticipar el retorno
@@ -431,7 +438,7 @@ public class AnalizadorSintactico {
         return nuevosIdentificadores;
     }
 
-    public void alternativa() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void alternativa() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_if"));
         expresion();
         match(new Token("tk_then"));
@@ -439,21 +446,21 @@ public class AnalizadorSintactico {
         alternativaAux();
     }
 
-    public void alternativaAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void alternativaAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
             bloque();
         }
     }
 
-    public void repetitiva() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void repetitiva() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_while"));
         expresion();
         match(new Token("tk_do"));
         bloque();
     }
 
-    public void llamadaSub() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void llamadaSub() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         int numeroParametroActual = 0;
         String tipoParametro = "";
         String tipoParametroEsperado = "";
@@ -538,14 +545,14 @@ public class AnalizadorSintactico {
         match(new Token("tk_parentesis_der"));
     }
 
-    public void escribir() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void escribir() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_write"));
         match(new Token("tk_parentesis_izq"));
         expresion();
         match(new Token("tk_parentesis_der"));
     }
 
-    public void sentenciaCompuesta() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public void sentenciaCompuesta() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_begin"));
         bloque();
         /* modificacion reciente de la gramatica*/
@@ -555,7 +562,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_end"));
     }
 
-    public String expresion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = expresion_1();
         String tipoAux = expresionAux();
         if (!tipoAux.equals("")) {
@@ -564,11 +571,12 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresionAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresionAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_or"))) {
             match(new Token("tk_op_or"));
             expresion_1();
+            this.mepaManager.DISJ(); // TODO: Va aca o depues de expresionAux?
             expresionAux();
             if (tipo.equalsIgnoreCase("tipo_integer")) {
                 throw new WrongTypeException("boolean", lexico.obtenerNumeroLinea());
@@ -578,7 +586,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_1() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_1() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = expresion_2();
         String tipoAux = expresion_1_aux();
         if (!tipoAux.equals("")) {
@@ -588,12 +596,13 @@ public class AnalizadorSintactico {
 
     }
 
-    public String expresion_1_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_1_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_and"))) {
             match(new Token("tk_op_and"));
             tipo = expresion_2();
+            this.mepaManager.CONJ(); // TODO: Va aca o depues de expresion_1_aux?
             expresion_1_aux();
             if (tipo.equalsIgnoreCase("tipo_integer")) {
                 throw new WrongTypeException("boolean", lexico.obtenerNumeroLinea());
@@ -603,12 +612,13 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_2() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_2() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         String tipoAux = "";
         if (ultimoToken.equals(new Token("tk_op_not"))) {
             match(new Token("tk_op_not"));
             tipoAux = "tipo_boolean";
+            this.mepaManager.NEGA();
         }
         tipo = expresion_3();
         if (!tipoAux.equals("") && !tipo.equalsIgnoreCase(tipoAux)) {
@@ -618,7 +628,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_3() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = expresion_4();
         //System.out.println("exp_4 " + tipo);
         String tipoAux = expresion_3_aux();
@@ -634,11 +644,36 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_3_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_3_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_relacional"))) {
-            operador_comparacion();
+            Token tokenMatcheado = operador_comparacion();
             tipo = expresion_4();
+            switch (tokenMatcheado.getAtributoToken()) {
+                case "op_igual":
+                    this.mepaManager.CMIG();
+                    break;
+
+                case "op_mayor":
+                    this.mepaManager.CMMA();
+                    break;
+
+                case "op_menor":
+                    this.mepaManager.CMME();
+                    break;
+
+                case "op_distinto":
+                    this.mepaManager.CMDG();
+                    break;
+
+                case "op_mayor_igual":
+                    this.mepaManager.CMYI();
+                    break;
+
+                case "op_menor_igual":
+                    this.mepaManager.CMNI();
+                    break;
+            }
             // hacer case para los diferentes op_realaciones
             //if (tipo.equalsIgnoreCase("tipo_boolean")) {
             //    throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
@@ -651,7 +686,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_4() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = expresion_5();
         String tipoAux = expresion_4_aux();
         if (!tipoAux.equals("")) {
@@ -666,11 +701,12 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_4_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_4_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
             tipo = expresion_5();
+            this.mepaManager.SUMA();
             if (tipo.equalsIgnoreCase("tipo_boolean")) {
                 throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
             }
@@ -679,6 +715,7 @@ public class AnalizadorSintactico {
             if (ultimoToken.equals(new Token("tk_op_resta"))) {
                 match(new Token("tk_op_resta"));
                 tipo = expresion_5();
+                this.mepaManager.SUST();
                 if (tipo.equalsIgnoreCase("tipo_boolean")) {
                     throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
                 }
@@ -688,7 +725,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_5() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = expresion_6();
         String tipoAux = expresion_5_aux();
         if (!tipoAux.equals("")) {
@@ -702,11 +739,12 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_5_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_5_aux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         if (ultimoToken.equals(new Token("tk_op_mult"))) {
             match(new Token("tk_op_mult"));
             tipo = expresion_6();
+            this.mepaManager.MULT();
             if (tipo.equalsIgnoreCase("tipo_boolean")) {
                 throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
             }
@@ -715,6 +753,7 @@ public class AnalizadorSintactico {
             if (ultimoToken.equals(new Token("tk_op_div"))) {
                 match(new Token("tk_op_div"));
                 tipo = expresion_6();
+                this.mepaManager.DIVI();
                 if (tipo.equalsIgnoreCase("tipo_boolean")) {
                     throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
                 }
@@ -724,7 +763,7 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public String expresion_6() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String expresion_6() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo;
         if (ultimoToken.equals(new Token("tk_op_suma"))) {
             match(new Token("tk_op_suma"));
@@ -736,6 +775,7 @@ public class AnalizadorSintactico {
             if (ultimoToken.equals(new Token("tk_op_resta"))) {
                 match(new Token("tk_op_resta"));
                 tipo = factor();
+                this.mepaManager.UMEN(); // TODO: Corroborar si el unario va arriba o abajo del numero en la pila
                 if (tipo.equalsIgnoreCase("tipo_boolean")) {
                     throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
                 }
@@ -746,30 +786,31 @@ public class AnalizadorSintactico {
         return tipo;
     }
 
-    public void operador_comparacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
+    public Token operador_comparacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException {
+        Token tokenMatcheado = null;
         switch (ultimoToken.getAtributoToken()) {
             case "op_igual":
-                match(new Token("tk_op_relacional", "op_igual"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_igual"));
                 break;
 
             case "op_mayor":
-                match(new Token("tk_op_relacional", "op_mayor"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_mayor"));
                 break;
 
             case "op_menor":
-                match(new Token("tk_op_relacional", "op_menor"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_menor"));
                 break;
 
             case "op_distinto":
-                match(new Token("tk_op_relacional", "op_distinto"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_distinto"));
                 break;
 
             case "op_mayor_igual":
-                match(new Token("tk_op_relacional", "op_mayor_igual"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_mayor_igual"));
                 break;
 
             case "op_menor_igual":
-                match(new Token("tk_op_relacional", "op_menor_igual"));
+                tokenMatcheado = match(new Token("tk_op_relacional", "op_menor_igual"));
                 break;
 
             default:
@@ -781,9 +822,11 @@ public class AnalizadorSintactico {
                 throw new UnexpectedTokenException("comparison operator", tokenEncontrado, lexico.obtenerNumeroLinea());
 
         }
+
+        return tokenMatcheado;
     }
 
-    public String factor() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException {
+    public String factor() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         String tipo = "";
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
@@ -791,7 +834,7 @@ public class AnalizadorSintactico {
                 //Token identificador = match(new Token("tk_id"));
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     llamadaSub();
-                    //problemas cuando se llama una funcion o precedimiento dentro de otra
+                    // this.mepaManager.LLPR(tipo); // Ni idea 
                     FilaFuncion fila = (FilaFuncion) obtenerIdentificador(ultimoToken.getAtributoToken());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
@@ -808,6 +851,7 @@ public class AnalizadorSintactico {
                             tipo = ((FilaFuncion) fila).getTipoRetorno();
                         } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
                             match(new Token("tk_id"));
+                            // this.mepaManager.APVL(anidamiento, anidamiento); // Ni idea como calcularlo
                             tipo = ((FilaVariable) fila).getTipo();
                         } else {
                             throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
@@ -819,11 +863,14 @@ public class AnalizadorSintactico {
                 }
                 break;
             case "tk_numero":
-                match(new Token("tk_numero"));
+                Token numero = match(new Token("tk_numero"));
+                this.mepaManager.APCT(numero.getAtributoToken());
                 tipo = "tipo_integer";
                 break;
             case "tk_boolean":
-                match(new Token("tk_boolean"));
+                Token bool = match(new Token("tk_boolean"));
+                String boolApilar = bool.getAtributoToken().equalsIgnoreCase("true") ? "1" : "0";
+                this.mepaManager.APCT(boolApilar);
                 tipo = "tipo_boolean";
                 break;
             case "tk_parentesis_izq":
