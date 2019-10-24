@@ -5,11 +5,20 @@ public class Fila {
     private String tipoConstructor;
     protected String nombre;
     private int lineaDeclaracion;
+    private String label;
 
-    public Fila(String tipoConstructor, String nombre, int lineaDeclaracion) {
+    public Fila(String tipoConstructor, String nombre, int lineaDeclaracion,String label) {
         this.tipoConstructor = tipoConstructor;
         this.nombre = nombre;
         this.lineaDeclaracion = lineaDeclaracion;
+        this.label=label;
+    }
+     public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public void setTipoConstructor(String tipoConstructor) {

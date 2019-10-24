@@ -13,15 +13,25 @@ public class FilaVariable extends Fila {
 
     private String tipo; // Integer o Boolean
     private boolean esParametro;
+    private int offset;
 
-    public FilaVariable(String tipoConstructor, String nombre, int lineaDeclaracion, String tipo, boolean esParametro) {
-        super(tipoConstructor, nombre, lineaDeclaracion);
+    public FilaVariable(String tipoConstructor, String nombre, int lineaDeclaracion,String label, String tipo, boolean esParametro,int offset) {
+        super(tipoConstructor, nombre, lineaDeclaracion,label);
         this.tipo = tipo;
         this.esParametro = esParametro;
+        this.offset=offset;
     }
 
     public String getTipo() {
         return tipo;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     public void setTipo(String tipo) {

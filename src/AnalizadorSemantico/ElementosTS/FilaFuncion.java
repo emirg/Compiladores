@@ -15,8 +15,8 @@ public class FilaFuncion extends FilaProcedimiento {
 
     private String tipoRetorno;
 
-    public FilaFuncion(String tipoConstructor, String nombre, int lineaDeclaracion, ArrayList listaParametros, String tipoRetorno) {
-        super(tipoConstructor, nombre, lineaDeclaracion, listaParametros);
+    public FilaFuncion(String tipoConstructor, String nombre, int lineaDeclaracion, ArrayList listaParametros,String label, String tipoRetorno) {
+        super(tipoConstructor, nombre, lineaDeclaracion, listaParametros,label);
         this.tipoRetorno = tipoRetorno;
     }
 
@@ -27,5 +27,6 @@ public class FilaFuncion extends FilaProcedimiento {
     public void setTipoRetorno(String tipoRetorno) {
         this.tipoRetorno = tipoRetorno;
     }
+
 
 }

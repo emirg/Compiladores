@@ -30,7 +30,7 @@ end;
 
 procedure sinParametro;
 begin
-  write(hola);
+  write(a);
 end;
 
 
