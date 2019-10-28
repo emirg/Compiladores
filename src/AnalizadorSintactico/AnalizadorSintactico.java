@@ -150,34 +150,29 @@ public class AnalizadorSintactico {
         switch (ultimoToken.getNombreToken()) {
             // Asignacion y llamada a subprograma
             case "tk_id":
-                Fila simbolo = this.obtenerIdentificador(ultimoToken.getAtributoToken());
+                Token identificador = match(new Token("tk_id"));
+                Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
                 if (simbolo != null) {
                     if (debugging) {
-                        System.out.println("simbolo " + simbolo.getTipoConstructor());
+                        System.out.println("Simbolo " + simbolo.getTipoConstructor());
                     }
                     if (simbolo.getTipoConstructor().equalsIgnoreCase("function")) {
-                        Fila simboloRetorno = this.obtenerIdentificador("retorno");
+                        // Fila simboloRetorno = this.obtenerIdentificador("retorno");
 
-                        if (simboloRetorno != null && simbolo.getNombre().equalsIgnoreCase(simboloRetorno.getNombre())) {
-                            //System.out.println("simbolo retorno " + simboloRetorno.getNombre());
-                            //System.out.println("entre llamada sub funcion retorno");
-                            asignacion();
+                        //if (simboloRetorno != null) {
+                        if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
+                            llamadaSub(identificador);
                         } else {
-                            //System.out.println("entre llamada sub funcion");
-                            FilaProcedimiento funcion = (FilaProcedimiento) simbolo;
-                            if (debugging) {
-                                System.out.println("parametros " + funcion.getListaParametros().size());
-                            }
-                            llamadaSub();
+                            asignacion(identificador);
                         }
+                        //} else {
+                        //  throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
+                        //}
                     } else {
                         if (simbolo.getTipoConstructor().equalsIgnoreCase("procedure")) {
-                            //System.out.println("entre llamada sub procedure");
-                            llamadaSub();
+                            llamadaSub(identificador);
                         } else {
-
-                            //System.out.println("entre asig");
-                            asignacion();
+                            asignacion(identificador);
                         }
                     }
                 } else {
@@ -220,8 +215,8 @@ public class AnalizadorSintactico {
         }
     }
 
-    public void asignacion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
-        Token identificador = match(new Token("tk_id"));
+    public void asignacion(Token identificador) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+
         match(new Token("tk_asignacion"));
         String tipo = expresion();
         Fila simbolo = this.obtenerIdentificador(identificador.getAtributoToken());
@@ -270,7 +265,8 @@ public class AnalizadorSintactico {
         match(new Token("tk_function"));
         this.nivel++;
         this.offset = 0;
-        mepaManager.ENPR(nivel);
+        String label = "l" + this.labelCounter++;
+        mepaManager.ENPR(label, nivel);
 
         // Guarda los datos para agregarlos a la tabla de simbolos 
         Token nuevaFuncion = match(new Token("tk_id"));
@@ -293,13 +289,13 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
 
         // Agrega el funcion a la tabla de simbolos junto con sus parametros
-        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++, tipo.getAtributoToken()));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label, tipo.getAtributoToken()));
 
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
 
         // Agrega funcion a la nueva tabla para recursividad
-        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++, tipo.getAtributoToken()));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label, tipo.getAtributoToken()));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
@@ -334,7 +330,8 @@ public class AnalizadorSintactico {
         Token nuevoProcedimiento = match(new Token("tk_id"));
         this.nivel++;
         this.offset = 0;
-        mepaManager.ENPR(nivel);
+        String label = "l" + this.labelCounter++;
+        mepaManager.ENPR(label, nivel);
         ArrayList<FilaVariable> parametros = new ArrayList();
 
         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
@@ -350,13 +347,13 @@ public class AnalizadorSintactico {
         }
 
         // Agrega el procedimiento a la tabla de simbolos junto con sus parametros
-        this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label));
 
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
 
         // Agrega funcion a la nueva tabla para recursividad
-        this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
@@ -459,15 +456,21 @@ public class AnalizadorSintactico {
 
     public void alternativa() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_if"));
-        expresion();
+        String tipo = expresion();
+        if (!tipo.equalsIgnoreCase("tipo_boolean")) {
+            throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
+        }
+        String label = "l"+ this.labelCounter++;
+        this.mepaManager.DSVF(label);
         match(new Token("tk_then"));
         bloque();
-        alternativaAux();
+        alternativaAux(label);
     }
 
-    public void alternativaAux() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+    public void alternativaAux(String label) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
+            this.mepaManager.NADA(label);
             bloque();
         }
     }
@@ -479,12 +482,12 @@ public class AnalizadorSintactico {
         bloque();
     }
 
-    public void llamadaSub() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+    public void llamadaSub(Token identificadorSubprograma) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         int numeroParametroActual = 0;
         String tipoParametro = "";
         String tipoParametroEsperado = "";
 
-        Token identificadorSubprograma = match(new Token("tk_id"));
+        // Token identificadorSubprograma = match(new Token("tk_id"));
         FilaProcedimiento simboloSubprograma = (FilaProcedimiento) this.obtenerIdentificador(identificadorSubprograma.getAtributoToken());
         ArrayList listaParametros = simboloSubprograma.getListaParametros();
 
@@ -850,33 +853,32 @@ public class AnalizadorSintactico {
         switch (ultimoToken.getNombreToken()) {
             // Identificador o llamada subprograma
             case "tk_id":
-                //Token identificador = match(new Token("tk_id"));
+                Token identificador = match(new Token("tk_id"));
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
-                    llamadaSub();
-                    // this.mepaManager.LLPR(tipo); // Ni idea 
-                    FilaFuncion fila = (FilaFuncion) obtenerIdentificador(ultimoToken.getAtributoToken());
+                    llamadaSub(identificador);
+                    // this.mepaManager.LLPR(tipo); // Ni idea  
+                    FilaFuncion fila = (FilaFuncion) obtenerIdentificador(identificador.getAtributoToken());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
                     } else {
-                        throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
+                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
                 } else {
-                    Fila fila = obtenerIdentificador(ultimoToken.getAtributoToken());
+                    Fila fila = obtenerIdentificador(identificador.getAtributoToken());
                     if (fila != null) {
                         //llamada a funcion sin parametros 
                         if (fila.getTipoConstructor().equalsIgnoreCase("function")) {
-                            llamadaSub();
+                            llamadaSub(identificador);
                             tipo = ((FilaFuncion) fila).getTipoRetorno();
                         } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
-                            match(new Token("tk_id"));
                             this.mepaManager.APVL(nivel, ((FilaVariable) fila).getOffset());
                             tipo = ((FilaVariable) fila).getTipo();
                         } else {
                             throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
                         }
                     } else {
-                        throw new IdentifierNotDefinedException(ultimoToken.getAtributoToken(), lexico.obtenerNumeroLinea());
+                        throw new IdentifierNotDefinedException(identificador.getAtributoToken(), lexico.obtenerNumeroLinea());
                     }
 
                 }
