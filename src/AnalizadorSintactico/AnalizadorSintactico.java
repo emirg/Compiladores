@@ -252,7 +252,7 @@ public class AnalizadorSintactico {
                         if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
                             throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simboloRetorno).getTipo()), lexico.obtenerNumeroLinea());
                         } else {
-                            this.mepaManager.ALVL(nivel, ((FilaVariable) simbolo).getOffset()); // TODO: Definir como obtener el offset
+                            this.mepaManager.ALVL(nivel, ((FilaVariable) simboloRetorno).getOffset()); // TODO: Definir como obtener el offset
                         }
                     } else {
                         throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
@@ -293,13 +293,13 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
 
         // Agrega el funcion a la tabla de simbolos junto con sus parametros
-        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, tipo.getAtributoToken(), "l" + labelCounter++));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++, tipo.getAtributoToken()));
 
         // Agrega una nueva tabla de simbolos para entrar en un nuevo alcance
         this.tablasSimbolo.add(new TablaSimbolo());
 
         // Agrega funcion a la nueva tabla para recursividad
-        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, tipo.getAtributoToken(), "l" + labelCounter++));
+        this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, "l" + labelCounter++, tipo.getAtributoToken()));
 
         // Agrega los parametros como identificadores dentro del nuevo alcance
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
