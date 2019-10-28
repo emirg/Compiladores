@@ -477,9 +477,18 @@ public class AnalizadorSintactico {
 
     public void repetitiva() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         match(new Token("tk_while"));
-        expresion();
+        String labelTrue = "l" + this.labelCounter++;
+        String labelFalse = "l" + this.labelCounter++;
+        this.mepaManager.NADA(labelTrue);
+        String tipo = expresion();
+        this.mepaManager.DSVF(labelFalse);
+        if (!tipo.equalsIgnoreCase("tipo_boolean")) {
+            throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
+        }
         match(new Token("tk_do"));
         bloque();
+        this.mepaManager.DSVS(labelTrue);
+        this.mepaManager.NADA(labelFalse);
     }
 
     public void llamadaSub(Token identificadorSubprograma) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
