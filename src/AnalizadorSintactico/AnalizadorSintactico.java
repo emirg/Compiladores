@@ -161,7 +161,9 @@ public class AnalizadorSintactico {
 
                         //if (simboloRetorno != null) {
                         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
+                           
                             llamadaSub(identificador);
+                            this.mepaManager.LLPR(simbolo.getLabel());
                         } else {
                             asignacion(identificador);
                         }
@@ -870,9 +872,9 @@ public class AnalizadorSintactico {
             case "tk_id":
                 Token identificador = match(new Token("tk_id"));
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
-                    llamadaSub(identificador);
-                    // this.mepaManager.LLPR(tipo); // Ni idea  
                     FilaFuncion fila = (FilaFuncion) obtenerIdentificador(identificador.getAtributoToken());
+                    llamadaSub(identificador);
+                    this.mepaManager.LLPR(fila.getLabel());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
                     } else {
