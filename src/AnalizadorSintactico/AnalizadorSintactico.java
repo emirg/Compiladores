@@ -347,6 +347,19 @@ public class AnalizadorSintactico {
             }
             match(new Token("tk_parentesis_der"));
         }
+        /*
+        Si el procedimiento tiene n parámetros, 
+        entonces el i-ésimo parámetro tendrá 
+        un desplazamiento −(n + 3 − i).
+        */
+        int cantParametros= parametros.size();
+        int i=1;
+        for (FilaVariable parametro : parametros) {
+            this.offsetParams=-(cantParametros+3-i);
+            parametro.setOffset(this.offsetParams);
+            //System.out.println("parametro "+parametro.getNombre()+" offset "+(this.offsetParams));
+            i++;
+        }
 
         // Agrega el procedimiento a la tabla de simbolos junto con sus parametros
         this.tablasSimbolo.peek().agregarSimbolo(nuevoProcedimiento.getAtributoToken(), new FilaProcedimiento("procedure", nuevoProcedimiento.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label));
