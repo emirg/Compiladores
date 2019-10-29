@@ -12,6 +12,7 @@ Program ejemplo;
                 k:=h;
                 p(n-2,g)           
             end;
+        write(n)
     end;
 begin
     k:=0;

@@ -289,6 +289,16 @@ public class AnalizadorSintactico {
         match(new Token("tk_dospuntos"));
         Token tipo = match(new Token("tk_tipo"));
         match(new Token("tk_puntocoma"));
+        
+        int cantParametros= parametros.size();
+        int i=1;
+        for (FilaVariable parametro : parametros) {
+            this.offsetParams=-(cantParametros+3-i);
+            parametro.setOffset(this.offsetParams);
+            //System.out.println("parametro "+parametro.getNombre()+" offset "+(this.offsetParams));
+            i++;
+        }
+        this.offsetParams=-(cantParametros+3);
 
         // Agrega el funcion a la tabla de simbolos junto con sus parametros
         this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label, tipo.getAtributoToken()));
