@@ -460,18 +460,24 @@ public class AnalizadorSintactico {
         if (!tipo.equalsIgnoreCase("tipo_boolean")) {
             throw new WrongTypeException("integer", lexico.obtenerNumeroLinea());
         }
-        String label = "l"+ this.labelCounter++;
+        int labelAltCounter = labelCounter;
+        String label = "l" + labelAltCounter;
         this.mepaManager.DSVF(label);
         match(new Token("tk_then"));
         bloque();
-        alternativaAux(label);
+        alternativaAux(labelAltCounter);
+        labelAltCounter++;
+        this.mepaManager.NADA("l" + labelAltCounter);
     }
 
-    public void alternativaAux(String label) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+    public void alternativaAux(int labelAltCounter) throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
         if (ultimoToken.equals(new Token("tk_else"))) {
             match(new Token("tk_else"));
-            this.mepaManager.NADA(label);
+            int nextLabelCounter = labelAltCounter + 1;
+            this.mepaManager.DSVS("l" + nextLabelCounter);
+            this.mepaManager.NADA("l" + labelAltCounter);
             bloque();
+
         }
     }
 
