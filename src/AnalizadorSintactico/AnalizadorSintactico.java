@@ -173,6 +173,7 @@ public class AnalizadorSintactico {
                     } else {
                         if (simbolo.getTipoConstructor().equalsIgnoreCase("procedure")) {
                             llamadaSub(identificador);
+                            this.mepaManager.LLPR(simbolo.getLabel());
                         } else {
                             asignacion(identificador);
                         }
