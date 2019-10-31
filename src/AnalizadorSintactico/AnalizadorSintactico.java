@@ -82,6 +82,7 @@ public class AnalizadorSintactico {
     }
 
     public void program() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+        int contadorVariables=0;
         this.ultimoToken = lexico.obtenerToken();
         match(new Token("tk_program"));
         // Inicializa la tabla de simbolos inicial
@@ -97,7 +98,7 @@ public class AnalizadorSintactico {
         this.mepaManager.INPP();
 
         if (ultimoToken.equals(new Token("tk_var"))) {
-            variables();
+            contadorVariables=variables();
         }
 
         this.mepaManager.DSVS(tablasSimbolo.peek().obtenerSimbolo(nuevoIdentificador.getAtributoToken()).getLabel()); // TODO: Definir como se trabajan los labels
@@ -122,6 +123,9 @@ public class AnalizadorSintactico {
         }
         match(new Token("tk_end"));
         match(new Token("tk_punto"));
+        if (contadorVariables > 0) {
+            this.mepaManager.LMEM(contadorVariables);
+        }
         this.mepaManager.PARA();
         this.mepaManager.closeWriter();
     }
@@ -161,7 +165,7 @@ public class AnalizadorSintactico {
 
                         //if (simboloRetorno != null) {
                         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
-                           
+
                             llamadaSub(identificador);
                             this.mepaManager.LLPR(simbolo.getLabel());
                         } else {
@@ -241,7 +245,8 @@ public class AnalizadorSintactico {
                 if (!((FilaVariable) simbolo).getTipo().equalsIgnoreCase(tipo)) {
                     throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simbolo).getTipo()), lexico.obtenerNumeroLinea());
                 } else {
-                    this.mepaManager.ALVL(nivel, ((FilaVariable) simbolo).getOffset()); // TODO: Definir como obtener el offset
+                    //System.out.println("var "+simbolo.getNombre()+ "nivel "+nivel+ " offset "+((FilaVariable) simbolo).getOffset());
+                    this.mepaManager.ALVL(((FilaVariable) simbolo).getNivel(), ((FilaVariable) simbolo).getOffset()); // TODO: Definir como obtener el offset
                 }
             } else {
                 Fila simboloRetorno = this.obtenerIdentificador("retorno");
@@ -250,7 +255,7 @@ public class AnalizadorSintactico {
                         if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
                             throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simboloRetorno).getTipo()), lexico.obtenerNumeroLinea());
                         } else {
-                            this.mepaManager.ALVL(nivel, ((FilaVariable) simboloRetorno).getOffset()); // TODO: Definir como obtener el offset
+                            this.mepaManager.ALVL(((FilaVariable) simbolo).getNivel(), ((FilaVariable) simboloRetorno).getOffset()); // TODO: Definir como obtener el offset
                         }
                     } else {
                         throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
@@ -265,6 +270,7 @@ public class AnalizadorSintactico {
     }
 
     public void funcion() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+        int contadorVariables=0;
         match(new Token("tk_function"));
         this.nivel++;
         this.offset = 0;
@@ -290,16 +296,16 @@ public class AnalizadorSintactico {
         match(new Token("tk_dospuntos"));
         Token tipo = match(new Token("tk_tipo"));
         match(new Token("tk_puntocoma"));
-        
-        int cantParametros= parametros.size();
-        int i=1;
+
+        int cantParametros = parametros.size();
+        int i = 1;
         for (FilaVariable parametro : parametros) {
-            this.offsetParams=-(cantParametros+3-i);
+            this.offsetParams = -(cantParametros + 3 - i);
             parametro.setOffset(this.offsetParams);
             //System.out.println("parametro "+parametro.getNombre()+" offset "+(this.offsetParams));
             i++;
         }
-        this.offsetParams=-(cantParametros+3);
+        this.offsetParams = -(cantParametros + 3);
 
         // Agrega el funcion a la tabla de simbolos junto con sus parametros
         this.tablasSimbolo.peek().agregarSimbolo(nuevaFuncion.getAtributoToken(), new FilaFuncion("function", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), parametros, label, tipo.getAtributoToken()));
@@ -314,10 +320,10 @@ public class AnalizadorSintactico {
         this.tablasSimbolo.peek().agregarColeccionSimbolos(parametros);
 
         // Agrega a la tabla para retorno funcion
-        this.tablasSimbolo.peek().agregarSimbolo("retorno", new FilaVariable("var", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), "", tipo.getAtributoToken(), false, offsetParams));
+        this.tablasSimbolo.peek().agregarSimbolo("retorno", new FilaVariable("var", nuevaFuncion.getAtributoToken(), lexico.obtenerNumeroLinea(), "", tipo.getAtributoToken(), false, offsetParams, nivel));
 
         if (ultimoToken.equals(new Token("tk_var"))) {
-            variables();
+            contadorVariables = variables();
         }
 
         while ((ultimoToken.equals(new Token("tk_function"))) || (ultimoToken.equals(new Token("tk_procedure")))) {
@@ -334,9 +340,13 @@ public class AnalizadorSintactico {
         //System.out.println("fin funcion");
         match(new Token("tk_puntocoma"));
         nivel--;
+        if (contadorVariables > 0) {
+            this.mepaManager.LMEM(contadorVariables);
+        }
     }
 
     public void procedimiento() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, WrongTypeException, WrongConstructorException, IdentifierNotDefinedException, WrongArgumentsException, IOException {
+        int contadorVariables = 0;
         match(new Token("tk_procedure"));
 
         // Guarda los datos para agregarlos a la tabla de simbolos
@@ -362,11 +372,11 @@ public class AnalizadorSintactico {
         Si el procedimiento tiene n parámetros, 
         entonces el i-ésimo parámetro tendrá 
         un desplazamiento −(n + 3 − i).
-        */
-        int cantParametros= parametros.size();
-        int i=1;
+         */
+        int cantParametros = parametros.size();
+        int i = 1;
         for (FilaVariable parametro : parametros) {
-            this.offsetParams=-(cantParametros+3-i);
+            this.offsetParams = -(cantParametros + 3 - i);
             parametro.setOffset(this.offsetParams);
             //System.out.println("parametro "+parametro.getNombre()+" offset "+(this.offsetParams));
             i++;
@@ -387,7 +397,7 @@ public class AnalizadorSintactico {
         match(new Token("tk_puntocoma"));
         /* la gramatica dice que es condicional y no lo estaba */
         if (ultimoToken.equals(new Token("tk_var"))) {
-            variables();
+            contadorVariables = variables();
         }
         while (ultimoToken.equals(new Token("tk_function")) || ultimoToken.equals(new Token("tk_procedure"))) {
             if (ultimoToken.equals(new Token("tk_function"))) {
@@ -402,11 +412,14 @@ public class AnalizadorSintactico {
         this.tablasSimbolo.pop();
         match(new Token("tk_puntocoma"));
         nivel--;
+        if (contadorVariables > 0) {
+            this.mepaManager.LMEM(contadorVariables);
+        }
     }
 
-    public void variables() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, IOException {
+    public int variables() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException, IOException {
+        int contadorVariables = 0;
         if (ultimoToken.equals(new Token("tk_var"))) {
-            int contadorVariables = 0;
             match(new Token("tk_var"));
             do {
                 contadorVariables = contadorVariables + listaIdentificadores(false).size();
@@ -414,6 +427,7 @@ public class AnalizadorSintactico {
             } while (ultimoToken.equals(new Token("tk_id")));
             this.mepaManager.RMEM(contadorVariables);
         }
+        return contadorVariables;
     }
 
     public ArrayList<FilaVariable> params() throws UnexpectedTokenException, UnexpectedCharException, UnopenedCommentException, UnclosedCommentException, IdentifierAlreadyDefinedException {
@@ -443,12 +457,12 @@ public class AnalizadorSintactico {
 
         if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken())) {
             if (!esParametro) {
-                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offset++));
+                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offset++, nivel));
             } else {
-                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--));
+                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--, nivel));
             }
         } else if (esParametro) {
-            nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--));
+            nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--, nivel));
         } else {
             throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
         }
@@ -456,14 +470,14 @@ public class AnalizadorSintactico {
         while (ultimoToken.equals(new Token("tk_coma"))) {
             match(new Token("tk_coma"));
             nuevoIdentificador = match(new Token("tk_id"));
-            if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken()) && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, 0))) {
+            if (!this.tablasSimbolo.peek().existeSimbolo(nuevoIdentificador.getAtributoToken()) && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, 0, nivel))) {
                 if (!esParametro) {
-                    nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offset++));
+                    nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offset++, nivel));
                 } else {
-                    nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--));
+                    nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--, nivel));
                 }
-            } else if (esParametro && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, 0))) {
-                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--));
+            } else if (esParametro && !nuevosIdentificadores.contains(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, 0, nivel))) {
+                nuevosIdentificadores.add(new FilaVariable("var", nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea(), "", "", esParametro, offsetParams--, nivel));
             } else {
                 throw new IdentifierAlreadyDefinedException(nuevoIdentificador.getAtributoToken(), lexico.obtenerNumeroLinea());
             }
@@ -913,7 +927,7 @@ public class AnalizadorSintactico {
                             llamadaSub(identificador);
                             tipo = ((FilaFuncion) fila).getTipoRetorno();
                         } else if (fila.getTipoConstructor().equalsIgnoreCase("var")) {
-                            this.mepaManager.APVL(nivel, ((FilaVariable) fila).getOffset());
+                            this.mepaManager.APVL(((FilaVariable) fila).getNivel(), ((FilaVariable) fila).getOffset());
                             tipo = ((FilaVariable) fila).getTipo();
                         } else {
                             throw new WrongConstructorException(fila.getTipoConstructor(), lexico.obtenerNumeroLinea());
