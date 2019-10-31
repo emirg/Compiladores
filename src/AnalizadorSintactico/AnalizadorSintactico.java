@@ -111,7 +111,7 @@ public class AnalizadorSintactico {
             }
 
         }
-
+        this.mepaManager.NADA("l" + 1);
         match(new Token("tk_begin"));
         bloque();
         while (ultimoToken.equals(new Token("tk_puntocoma"))) {
@@ -255,7 +255,7 @@ public class AnalizadorSintactico {
                         if (!((FilaVariable) simboloRetorno).getTipo().equalsIgnoreCase(tipo)) {
                             throw new WrongTypeException(this.tablaNombresTokens.get(((FilaVariable) simboloRetorno).getTipo()), lexico.obtenerNumeroLinea());
                         } else {
-                            this.mepaManager.ALVL(((FilaVariable) simbolo).getNivel(), ((FilaVariable) simboloRetorno).getOffset()); // TODO: Definir como obtener el offset
+                            this.mepaManager.ALVL(((FilaVariable) simboloRetorno).getNivel(), ((FilaVariable) simboloRetorno).getOffset()); // TODO: Definir como obtener el offset
                         }
                     } else {
                         throw new WrongConstructorException(simbolo.getTipoConstructor(), lexico.obtenerNumeroLinea());
