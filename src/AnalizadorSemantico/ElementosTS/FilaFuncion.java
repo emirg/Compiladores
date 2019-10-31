@@ -15,8 +15,8 @@ public class FilaFuncion extends FilaProcedimiento {
 
     private String tipoRetorno;
 
-    public FilaFuncion(String tipoConstructor, String nombre, int lineaDeclaracion, ArrayList listaParametros,String label, String tipoRetorno) {
-        super(tipoConstructor, nombre, lineaDeclaracion, listaParametros,label);
+    public FilaFuncion(String tipoConstructor, String nombre, int lineaDeclaracion, ArrayList listaParametros,String label, String tipoRetorno,int nivel) {
+        super(tipoConstructor, nombre, lineaDeclaracion, listaParametros,label,nivel);
         this.tipoRetorno = tipoRetorno;
     }
 

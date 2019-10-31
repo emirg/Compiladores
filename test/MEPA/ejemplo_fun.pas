@@ -12,7 +12,7 @@ program ejemplo;
         else
             begin
                 f:= f(n-1,p)+f(n-2,q);
-                p:=p+q+q
+                p:=p+q+1;
             end;
         write(n)
     end;

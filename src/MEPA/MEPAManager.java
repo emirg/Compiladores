@@ -43,7 +43,7 @@ public class MEPAManager {
 
     // Llamada procedimiento
     public void LLPR(String label) throws IOException {
-        writer.write("    LLPR  " + label);
+        writer.write("    LLPR   " + label);
         writer.newLine();
     }
 
