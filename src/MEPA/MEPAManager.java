@@ -157,7 +157,7 @@ public class MEPAManager {
     }
 
     public void IMPR() throws IOException {
-        writer.write("    IMPR");
+        writer.write("    IMLN");
         writer.newLine();
     }
 
