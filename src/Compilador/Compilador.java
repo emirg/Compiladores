@@ -19,17 +19,26 @@ import java.io.IOException;
 
 public class Compilador {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         AnalizadorLexico lexico;
         MEPAManager mepa;
         try {
-            lexico = new AnalizadorLexico("/home/emiliano/Git/Facultad/Compiladores/test/AnalizadorSintactico/Ej10a.pas");
-            AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
-            mepa = new MEPAManager("/home/emiliano/Git/Facultad/Compiladores/test/MEPA/codigoMEPA.txt");
+            //lexico = new AnalizadorLexico("/home/german/Escritorio/Compiladores/test/AnalizadorSintactico/testError.pas");
+            //lexico = new AnalizadorLexico("/home/german/Escritorio/Compiladores/test/MEPA/ejemplo.pas");
+            //AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, false);
+            lexico = new AnalizadorLexico(args[0]);
+
+            //EMI
+            //mepa = new MEPAManager("/home/emiliano/Git/Facultad/Compiladores/test/MEPA/codigoMEPA.txt");
+            //GER
+            //mepa = new MEPAManager("/home/german/Escritorio/Compiladores/test/MEPA/codigoMEPA.mep");
+            mepa = new MEPAManager(args[0].substring(0, args[0].length()-3).concat("mep"));
+
             AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, mepa, false);
             sintactico.program();
             System.out.println("Compilation successful");
+
         } catch (FileNotFoundException e) {
             // Logger.getLogger(Compilador.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("File not found");

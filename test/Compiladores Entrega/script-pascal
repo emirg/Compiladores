@@ -2,13 +2,13 @@
 
 echo Compilando archivo .pas 
 
-java -jar Compiladores.jar $1 $2
+java -jar Compiladores.jar $1.pas 
 
 echo Codigo Intermedio Generado 
 
-echo Ejecutando codigoMepa.mep en mepaV2015_64
+echo Ejecutando $1.mep en mepaV2015_64
 
-./mepaV2015_64 -D 3 $2
+./mepaV2015_64 $1.mep
 
 
 

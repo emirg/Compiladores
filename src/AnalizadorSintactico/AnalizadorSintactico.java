@@ -167,7 +167,6 @@ public class AnalizadorSintactico {
                         if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
 
                             llamadaSub(identificador);
-                            //this.mepaManager.LLPR(simbolo.getLabel());
                         } else {
                             asignacion(identificador);
                         }
@@ -610,7 +609,7 @@ public class AnalizadorSintactico {
                         if (!tipoParametro.equalsIgnoreCase(tipoParametroEsperado)) {
                             throw new WrongTypeException(this.tablaNombresTokens.get(tipoParametroEsperado), lexico.obtenerNumeroLinea());
                         }
-                        this.mepaManager.LLPR(simboloSubprograma.getLabel());
+                        //this.mepaManager.LLPR(simboloSubprograma.getLabel());
 
                     } else {
                         // Si la cantidad de parametros es erronea
@@ -624,6 +623,7 @@ public class AnalizadorSintactico {
                 }
 
                 match(new Token("tk_parentesis_der"));
+                this.mepaManager.LLPR(simboloSubprograma.getLabel());
             } else {
                 throw new WrongArgumentsException(identificadorSubprograma.getAtributoToken(), lexico.obtenerNumeroLinea());
             }
@@ -937,9 +937,7 @@ public class AnalizadorSintactico {
                 Token identificador = match(new Token("tk_id"));
                 if (ultimoToken.equals(new Token("tk_parentesis_izq"))) {
                     FilaFuncion fila = (FilaFuncion) obtenerIdentificador(identificador.getAtributoToken());
-                    //this.mepaManager.LLPR(fila.getLabel());
                     llamadaSub(identificador);
-                    //this.mepaManager.LLPR(fila.getLabel());
                     if (fila != null) {
                         tipo = fila.getTipoRetorno();
                     } else {
