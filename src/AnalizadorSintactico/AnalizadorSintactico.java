@@ -973,7 +973,9 @@ public class AnalizadorSintactico {
                 break;
             case "tk_boolean":
                 Token bool = match(new Token("tk_boolean"));
-                String boolApilar = bool.getAtributoToken().equalsIgnoreCase("true") ? "1" : "0";
+
+                String boolApilar = bool.getAtributoToken().equalsIgnoreCase("valor_true") ? "1" : "0";
+
                 this.mepaManager.APCT(boolApilar);
                 tipo = "tipo_boolean";
                 break;

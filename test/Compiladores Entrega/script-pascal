@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo Compilando archivo .pas 
+
+java -jar Compiladores.jar $1 $2
+
+echo Codigo Intermedio Generado 
+
+echo Ejecutando codigoMepa.mep en mepaV2015_64
+
+./mepaV2015_64 -D 3 $2
+
+
+

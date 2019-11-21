@@ -1,0 +1,35 @@
+    INPP
+    RMEM   3
+    DSVS   l1
+l2  ENPR   1
+    RMEM   1
+    APVL   1,-4
+    IMLN
+    APVL   1,-3
+    IMLN
+    APVL   1,-3
+    APVL   1,-4
+    CONJ
+    ALVL   1,-5
+    LMEM   1
+    RTPR   1,2
+l1  NADA
+    LEER
+    ALVL   0,2
+    APVL   0,2
+    IMLN
+    APCT   0
+    ALVL   0,0
+    APVL   0,0
+    APCT   0
+    CMDG
+    ALVL   0,1
+    RMEM   1
+    APVL   0,1
+    APVL   0,2
+    LLPR   l2
+    ALVL   0,2
+    APVL   0,2
+    IMLN
+    LMEM   3
+    PARA

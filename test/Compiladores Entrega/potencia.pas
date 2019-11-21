@@ -22,8 +22,5 @@ begin
     read(b);
     read(c);
     a:=potencia(b,c);
-    write(a);
-    write(b);
-    write(c);
-    
+    write(a);  
 end.
